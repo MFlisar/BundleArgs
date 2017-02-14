@@ -55,7 +55,7 @@ Test test = new Test(new TestBundleBuilder()
 ```
 
 For activities use the provider `buildIntent(context)` function to get an `Intent`:
-**IMPORTANT: ** of course, the test class must be an activity in this case!
+**IMPORTANT:** of course, the test class must be an activity in this case!
 ```groovy
 Intent intent new TestActivityBundleBuilder()
                 .id(1L)
