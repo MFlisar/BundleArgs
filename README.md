@@ -17,8 +17,8 @@ repositories {
 apply plugin: 'com.neenbedankt.android-apt'
 
 dependencies {
-    compile 'com.github.MFlisar:BundleBuilder:0.2'
-    apt 'com.github.MFlisar:BundleBuilder:0.2'
+    compile 'com.github.MFlisar:BundleBuilder:0.3'
+    apt 'com.github.MFlisar:BundleBuilder:0.3'
 }
 ```
 
@@ -51,7 +51,7 @@ Test test = new Test(new TestBundleBuilder()
                 .id(1L)
                 .value("Test")
                 .optionalValue("optionalValue")
-                .build(context));
+                .build());
 ```
 
 For activities use the provider `buildIntent(context)` function to get an `Intent` - **IMPORTANT:** of course, the test class must be an activity in this case!
@@ -66,8 +66,6 @@ startActivity(intent);
 
 Alternatively, if you annotate your classes with `@BundleBuilder(useConstructorForMandatoryArgs = true)`, the processor will create a constructor that forces you to pass in all required arguments and only optional arguments will be settable via a builder like chaining of setters.
 
-The context will not be necessary in future releases, currently I use it because I create `Bundles` via `Intents` because they allow to pass in values as `Objects` and don't need to distinct between each value class.
-
 For an example with activities, check out the demo: [Demo](https://github.com/MFlisar/BundleArgs/tree/master/sample/src/main/java/com/michaelflisar/bundlebuilder/sample)
 
 ### Credits
@@ -75,13 +73,6 @@ For an example with activities, check out the demo: [Demo](https://github.com/MF
 This project is based on https://github.com/emilsjolander/IntentBuilder
 
 ### TODO
-
-Will be done in the next 24 hours:
-
-* support primitive types 
-* improve the bundle builder and make bundles without going the way over the intent (and avoid the need of a context for simple bundles) => `build(context);` will be changed to `build()`
-
-Others
 
 * conductor/fragment/class demo?
 * ???
