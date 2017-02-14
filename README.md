@@ -54,16 +54,17 @@ Test test = new Test(new TestBundleBuilder()
                 .build(context));
 ```
 
-For activities use the provider `buildIntent(context)` function to get an `Intent`:
-**IMPORTANT:** of course, the test class must be an activity in this case!
+For activities use the provider `buildIntent(context)` function to get an `Intent` - **IMPORTANT:** of course, the test class must be an activity in this case!
 ```groovy
 Intent intent new TestActivityBundleBuilder()
                 .id(1L)
                 .value("Test")
                 .optionalValue("optionalValue")
                 .buildIntent(TestActivity.this));
-startActivity(i);
+startActivity(intent);
 ```
+
+Alternatively, if you annotate your classes with `@BundleBuilder(useConstructorForMandatoryArgs = true)`, the processor will create a constructor that forces you to pass in all required arguments and only option arguments will be settable via a builder like chaining of setters.
 
 The context will not be necessary in future releases, currently I use it because I create `Bundles` via `Intents` because they allow to pass in values as `Objects` and don't need to distinct between each value class.
 
