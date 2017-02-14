@@ -24,7 +24,7 @@ dependencies {
 
 ### Usage
 
-Here's a simple example:
+Here's a simple example that demonstrates the use in ANY class that needs a `Bundle` argument:
 
 ```groovy
 @BundleBuilder
