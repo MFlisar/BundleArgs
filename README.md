@@ -1,5 +1,5 @@
 #BundleBuilder [![Release](https://jitpack.io/v/MFlisar/BundleArgs.svg)](https://jitpack.io/#MFlisar/BundleArgs)
-Type safe bunlde/intent building for any class (activities, fragments, ...)
+Type safe bundle/intent building for any class (activities, fragments, ...)
 
 BundleBuilder is a type safe way of creating intents/bundles and populating them with extras. Intents/Bundles were created to be very dynamic but often times the dynamic nature of intents is not needed and just gets in the way of writing safe code.
 
