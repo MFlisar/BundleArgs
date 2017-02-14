@@ -1,15 +1,12 @@
-package com.michaelflisar.bundlebuilder.sample;
+package com.michaelflisar.bundlebuilder.sample.detail;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.michaelflisar.bundlebuilder.Arg;
 import com.michaelflisar.bundlebuilder.BundleBuilder;
-
-import java.util.List;
+import com.michaelflisar.bundlebuilder.sample.R;
+import com.michaelflisar.bundlebuilder.sample.base.BaseDetailActivity;
 
 @BundleBuilder(createListOfArgs = true, useConstructorForMandatoryArgs = true)
 public class DetailActivity2 extends BaseDetailActivity
@@ -18,10 +15,16 @@ public class DetailActivity2 extends BaseDetailActivity
     // Arguments
     // --------------
 
-    @Arg String stringArg;
-    @Arg @Nullable String optionalStringArg;
-    @Arg("withCustomArgSetterName") @Nullable String mWithCustomArgSetterName;
-    @Arg Integer integerArg;
+    @Arg
+    String stringArg;
+    @Arg @Nullable
+    String optionalStringArg;
+    @Arg("withCustomArgSetterName") @Nullable
+    String mWithCustomArgSetterName;
+    @Arg
+    Integer integerArg;
+    @Arg
+    boolean boolArg;
 
     // --------------
     // Activity

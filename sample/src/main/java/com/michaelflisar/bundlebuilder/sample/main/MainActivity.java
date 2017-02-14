@@ -1,4 +1,4 @@
-package com.michaelflisar.bundlebuilder.sample;
+package com.michaelflisar.bundlebuilder.sample.main;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,6 +6,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.michaelflisar.bundlebuilder.sample.R;
+import com.michaelflisar.bundlebuilder.sample.detail.DetailActivity2BundleBuilder;
+import com.michaelflisar.bundlebuilder.sample.detail.DetailActivityBundleBuilder;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new DetailActivityBundleBuilder()
                         .stringArg("String Test Argument")
                         .integerArg(100)
+                        .intArg(100)
+                        .boolArg(true)
                         //.optionalStringArg("Optional Arg")
                         .withCustomArgSetterName("Custom Setter Name Argument")
                         .buildIntent(MainActivity.this);
@@ -36,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-                Intent i = new DetailActivity2BundleBuilder("String Test Argument", 100)
+                Intent i = new DetailActivity2BundleBuilder("String Test Argument", 100, true)
                         //.optionalStringArg("Optional Arg")
                         .withCustomArgSetterName("Custom Setter Name Argument")
                         .buildIntent(MainActivity.this);

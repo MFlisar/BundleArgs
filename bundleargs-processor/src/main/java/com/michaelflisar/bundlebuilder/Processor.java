@@ -128,7 +128,6 @@ public class Processor extends AbstractProcessor
         // 4) add buildIntent method to create an intent
         addBuildIntentFunction(annotatedElement, builder, required, optional);
 
-        // TODO: can be done without Intent! But the intent does not need to handle each variable type explicitely where as the Bundle needs to!
         // 5) add build method to create a bundle
         addBuildBundleFunction(annotatedElement, builder, required, optional);
 
@@ -159,9 +158,7 @@ public class Processor extends AbstractProcessor
             for (Element e : required)
             {
                 String paramName = getParamName(e);
-                builder.addField(TypeName.get(e.asType()), paramName, Modifier.PRIVATE, Modifier.FINAL);
-                constructor.addParameter(TypeName.get(e.asType()), paramName);
-                constructor.addStatement("this.$N = $N", paramName, paramName);
+                Util.addFieldToConstructor(builder, constructor, e, paramName, true);
             }
         }
 
@@ -178,6 +175,7 @@ public class Processor extends AbstractProcessor
         // we always add setters for all optional fields
         elementsToPrecess.addAll(optional);
 
+        ClassName className = ClassName.get(getPackageName(annotatedElement), name);
         for (Element e : elementsToPrecess)
         {
             String paramName = getParamName(e);
@@ -187,7 +185,7 @@ public class Processor extends AbstractProcessor
                     .addParameter(TypeName.get(e.asType()), paramName)
                     .addStatement("this.$N = $N", paramName, paramName)
                     .addStatement("return this")
-                    .returns(ClassName.get(getPackageName(annotatedElement), name))
+                    .returns(className)
                     .build());
         }
     }
@@ -199,23 +197,17 @@ public class Processor extends AbstractProcessor
                 .addParameter(Context.class, "context")
                 .addStatement("$T intent = new Intent(context, $T.class)", Intent.class, TypeName.get(annotatedElement.asType()));
 
-        if (!annotatedElement.getAnnotation(BundleBuilder.class).useConstructorForMandatoryArgs())
+        boolean useConstructorForMandatoryFields = annotatedElement.getAnnotation(BundleBuilder.class).useConstructorForMandatoryArgs();
+        for (Element e : required)
         {
-            for (Element e : required)
-            {
-                String paramName = getParamName(e);
-                buildIntentMethod
-                        .beginControlFlow("if ($N == null)", paramName)
-                        .addStatement("throw new RuntimeException($S)", String.format("Mandatory field \"%s\" missing!", paramName))
-                        .endControlFlow()
-                        .addStatement("intent.putExtra($S, $N)", paramName, paramName);
-            }
+            String paramName = getParamName(e);
+            Util.addFieldToIntent(buildIntentMethod, e, paramName, true, !useConstructorForMandatoryFields);
         }
 
         for (Element e : optional)
         {
             String paramName = getParamName(e);
-            buildIntentMethod.addStatement("intent.putExtra($S, $N)", paramName, paramName);
+            Util.addFieldToIntent(buildIntentMethod, e, paramName, false, !useConstructorForMandatoryFields);
         }
         buildIntentMethod.returns(Intent.class)
                 .addStatement("return intent");
@@ -227,30 +219,23 @@ public class Processor extends AbstractProcessor
         // TODO: can be done without Intent! But the intent does not need to handle each variable type explicitely where as the Bundle needs to!
         MethodSpec.Builder buildMethod = MethodSpec.methodBuilder("build")
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(Context.class, "context")
-                .addStatement("$T intent = new Intent(context, $T.class)", Intent.class, TypeName.get(annotatedElement.asType()));
+                .addStatement("$T bundle = new $T()", Bundle.class, Bundle.class);
 
-        if (!annotatedElement.getAnnotation(BundleBuilder.class).useConstructorForMandatoryArgs())
+        boolean useConstructorForMandatoryFields = annotatedElement.getAnnotation(BundleBuilder.class).useConstructorForMandatoryArgs();
+        for (Element e : required)
         {
-            for (Element e : required)
-            {
-                String paramName = getParamName(e);
-                buildMethod
-                        .beginControlFlow("if ($N == null)", paramName)
-                        .addStatement("throw new RuntimeException($S)", String.format("Mandatory field \"%s\" missing!", paramName))
-                        .endControlFlow()
-                        .addStatement("intent.putExtra($S, $N)", paramName, paramName);
-            }
+            String paramName = getParamName(e);
+            Util.addFieldToBundle(buildMethod, e, paramName, true, !useConstructorForMandatoryFields);
         }
 
         for (Element e : optional)
         {
             String paramName = getParamName(e);
-            buildMethod.addStatement("intent.putExtra($S, $N)", paramName, paramName);
+            Util.addFieldToBundle(buildMethod, e, paramName, false, !useConstructorForMandatoryFields);
         }
 
         buildMethod.returns(Bundle.class)
-                .addStatement("return intent.getExtras()");
+                .addStatement("return bundle");
         builder.addMethod(buildMethod.build());
     }
 
@@ -263,11 +248,7 @@ public class Processor extends AbstractProcessor
         for (Element e : all)
         {
             String paramName = getParamName(e);
-            injectMethod.beginControlFlow("if (args.containsKey($S))", paramName)
-                    .addStatement("annotatedClass.$N = ($T) args.get($S)", e.getSimpleName().toString(), e.asType(), paramName)
-                    .nextControlFlow("else")
-                    .addStatement("annotatedClass.$N = null", e.getSimpleName().toString())
-                    .endControlFlow();
+            Util.addFieldToInjectFunction( injectMethod, e, paramName);
         }
         builder.addMethod(injectMethod.build());
     }
@@ -277,17 +258,7 @@ public class Processor extends AbstractProcessor
         for (Element e : all)
         {
             String paramName = getParamName(e);
-            MethodSpec.Builder getterMethod = MethodSpec
-                    .methodBuilder(getGetterName(paramName))
-                    .returns(ClassName.get(e.asType()))
-                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .addParameter(Bundle.class, "bundle")
-                    .beginControlFlow("if (bundle != null && bundle.containsKey($S))", paramName)
-                    .addStatement("return ($T) bundle.get($S)", e.asType(), paramName)
-                    .nextControlFlow("else")
-                    .addStatement("return null")
-                    .endControlFlow();
-            builder.addMethod(getterMethod.build());
+            Util.addFieldGetter(builder, e, paramName, getGetterName(paramName));
         }
     }
 
@@ -303,7 +274,7 @@ public class Processor extends AbstractProcessor
             for (Element e : all)
             {
                 String paramName = getParamName(e);
-                listMethod.beginControlFlow("if (bundle.containsKey($S))", paramName)
+                listMethod.beginControlFlow("if (bundle != null && bundle.containsKey($S))", paramName)
                         .addStatement("list.add($L(bundle))", getGetterName(paramName))
                         .endControlFlow();
             }
