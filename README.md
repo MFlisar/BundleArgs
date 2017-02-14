@@ -24,3 +24,9 @@ dependencies {
 ### Credits
 
 This project is based on https://github.com/emilsjolander/IntentBuilder
+
+### TODO
+
+* support primitive types
+* improve the bundle builder and make bundles without going the way over the intent
+* ???
