@@ -6,19 +6,19 @@ BundleBuilder is a type safe way of creating intents/bundles and populating them
  
 ### Gradle (via [JitPack.io](https://jitpack.io/))
 
-1. add jitpack to your project's `build.gradle`:
+1) add jitpack to your project's `build.gradle`:
 ```groovy
 repositories {
     maven { url "https://jitpack.io" }
 }
 ```
-2. add the compile statement to your module's `build.gradle`:
+2) add the compile statement to your module's `build.gradle`:
 ```groovy
 dependencies {
     compile 'com.github.MFlisar:RXBus:1.0'
 }
 ```
-3. apply the apt plugin in your project and add the dependencies
+3) apply the apt plugin in your project and add the dependencies
 ```groovy
 apply plugin: 'com.neenbedankt.android-apt'
 
