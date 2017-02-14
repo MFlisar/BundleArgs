@@ -21,3 +21,6 @@ dependencies {
     apt 'com.github.MFlisar:BundleBuilder:1.0'
 }
 ```
+### Credits
+
+This project is based on https://github.com/emilsjolander/IntentBuilder
