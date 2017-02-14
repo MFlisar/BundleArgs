@@ -47,12 +47,22 @@ public class Test
 And here's how you use the created builder:
 
 ```groovy
-
 Test test = new Test(new TestBundleBuilder()
                 .id(1L)
                 .value("Test")
                 .optionalValue("optionalValue")
                 .build(context));
+```
+
+For activities use the provider `buildIntent(context)` function to get an `Intent`:
+**IMPORTANT: ** of course, the test class must be an activity in this case!
+```groovy
+Intent intent new TestActivityBundleBuilder()
+                .id(1L)
+                .value("Test")
+                .optionalValue("optionalValue")
+                .buildIntent(TestActivity.this));
+startActivity(i);
 ```
 
 The context will not be necessary in future releases, currently I use it because I create `Bundles` via `Intents` because they allow to pass in values as `Objects` and don't need to distinct between each value class.
