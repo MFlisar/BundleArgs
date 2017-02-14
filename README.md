@@ -67,6 +67,8 @@ startActivity(i);
 
 The context will not be necessary in future releases, currently I use it because I create `Bundles` via `Intents` because they allow to pass in values as `Objects` and don't need to distinct between each value class.
 
+For an example with activities, check out the demo: [Demo](https://github.com/MFlisar/BundleArgs/tree/master/sample/src/main/java/com/michaelflisar/bundlebuilder/sample)
+
 ### Credits
 
 This project is based on https://github.com/emilsjolander/IntentBuilder
