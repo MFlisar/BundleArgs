@@ -76,8 +76,12 @@ This project is based on https://github.com/emilsjolander/IntentBuilder
 
 ### TODO
 
-* support primitive types
-* improve the bundle builder and make bundles without going the way over the intent (and avoid the need of a context for simple bundles)
-* custom exception type for missing argument?
+Will be done in the next 24 hours:
+
+* support primitive types 
+* improve the bundle builder and make bundles without going the way over the intent (and avoid the need of a context for simple bundles) => `build(context);` will be changed to `build()`
+
+Others
+
 * conductor/fragment/class demo?
 * ???
