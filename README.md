@@ -21,6 +21,30 @@ dependencies {
     apt 'com.github.MFlisar:BundleBuilder:0.2'
 }
 ```
+
+### Usage
+
+Here's a simple example:
+
+```groovy
+@BundleBuilder
+public class Test
+{
+    @Arg
+    Long id;
+    @Arg
+    String value;
+    @Arg @Nullable
+    String optionalValue;
+    
+    public Test(Bundle args)
+    {
+        TestBundleBuilder.inject(args, this);
+    }
+}
+```
+
+Here
 ### Credits
 
 This project is based on https://github.com/emilsjolander/IntentBuilder
