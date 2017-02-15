@@ -8,7 +8,7 @@ Let your IDE create your bundles/intents for you. This library is:
 * **supports any class**:`Activities`, `Fragments` and any other class => use one processor for all your needs
 * creates nice helper functions if appropriate
  
-### Gradle (via [JitPack.io](https://jitpack.io/))
+### How to add it to your project - Gradle (via [JitPack.io](https://jitpack.io/))
 
 1) add jitpack to your project's `build.gradle`:
 ```groovy
