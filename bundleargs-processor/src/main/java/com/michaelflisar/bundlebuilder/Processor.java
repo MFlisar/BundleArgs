@@ -140,9 +140,6 @@ public class Processor extends AbstractProcessor
         // 7) add getter functions for each fields
         addGetters(builder, all);
 
-        // 8) OPTIONAL: add list of arguments to generated class
-        addAllArgumentsAsListGetter(annotatedElement, builder, all);
-
         return builder.build();
     }
 
@@ -184,6 +181,9 @@ public class Processor extends AbstractProcessor
 
     private void addBuildIntentFunction(Element annotatedElement, TypeSpec.Builder builder, List<ArgElement> all)
     {
+        if (!annotatedElement.getAnnotation(BundleBuilder.class).alwaysAddIntentBuilder() && !Util.checkIsOrExtendsActivity(elementUtils, typeUtils, annotatedElement))
+            return;
+
         MethodSpec.Builder buildIntentMethod = MethodSpec.methodBuilder("buildIntent")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Context.class, "context")
@@ -260,29 +260,6 @@ public class Processor extends AbstractProcessor
     {
         for (ArgElement e : all)
             e.addFieldGetter(builder);
-    }
-
-    private void addAllArgumentsAsListGetter(Element annotatedElement, TypeSpec.Builder builder, List<ArgElement> all)
-    {
-        if (annotatedElement.getAnnotation(BundleBuilder.class).createListOfArgs())
-        {
-            MethodSpec.Builder listMethod = MethodSpec.methodBuilder("getArguments")
-                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .addParameter(Bundle.class, "bundle")
-                    .addStatement("$T<Object> list = new $T<Object>()", ArrayList.class, ArrayList.class);
-
-            for (ArgElement e : all)
-            {
-                String paramName = e.getParamName();
-                listMethod.beginControlFlow("if (bundle != null && bundle.containsKey($S))", paramName)
-                        .addStatement("list.add($L(bundle))", e.getFieldGetterName())
-                        .endControlFlow();
-            }
-
-            listMethod.returns(List.class)
-                    .addStatement("return list");
-            builder.addMethod(listMethod.build());
-        }
     }
 
     // --------------------

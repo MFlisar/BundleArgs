@@ -8,7 +8,7 @@ import com.michaelflisar.bundlebuilder.BundleBuilder;
 import com.michaelflisar.bundlebuilder.sample.R;
 import com.michaelflisar.bundlebuilder.sample.base.BaseDetailActivity;
 
-@BundleBuilder(createListOfArgs = true, useConstructorForMandatoryArgs = false)
+@BundleBuilder(useConstructorForMandatoryArgs = false)
 public class DetailActivity extends BaseDetailActivity
 {
     // --------------

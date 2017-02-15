@@ -8,7 +8,7 @@ import com.michaelflisar.bundlebuilder.BundleBuilder;
 import com.michaelflisar.bundlebuilder.sample.R;
 import com.michaelflisar.bundlebuilder.sample.base.BaseDetailActivity;
 
-@BundleBuilder(createListOfArgs = true, useConstructorForMandatoryArgs = false, setterPrefix = "with")
+@BundleBuilder(useConstructorForMandatoryArgs = false, setterPrefix = "with")
 public class DetailActivity3 extends BaseDetailActivity
 {
     // --------------
@@ -34,6 +34,7 @@ public class DetailActivity3 extends BaseDetailActivity
     @Arg(optional = true) @Nullable
     String optionalNullableWithOverwrittenDefaultValue = "default value";
 
+    int x = 0;
     // --------------
     // Activity
     // --------------

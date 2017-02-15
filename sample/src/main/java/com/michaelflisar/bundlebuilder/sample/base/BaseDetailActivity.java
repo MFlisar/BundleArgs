@@ -28,9 +28,9 @@ public class BaseDetailActivity extends AppCompatActivity
 
     protected void addArgsToList()
     {
-        List<Object> allArgs = DetailActivityBundleBuilder.getArguments(getIntent().getExtras());
-        for (int i = 0; i < allArgs.size(); i++)
-           addValue(null, allArgs.get(i));
+        Bundle b = getIntent().getExtras();
+        for (String key : b.keySet())
+            addValue(key, b.get(key));
     }
 
     protected void addValue(String customLabel, Object value)

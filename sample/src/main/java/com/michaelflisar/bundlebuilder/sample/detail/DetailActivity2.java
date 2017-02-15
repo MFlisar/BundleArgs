@@ -11,7 +11,7 @@ import com.michaelflisar.bundlebuilder.sample.base.BaseDetailActivity;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-@BundleBuilder(createListOfArgs = true, useConstructorForMandatoryArgs = true)
+@BundleBuilder(useConstructorForMandatoryArgs = true)
 public class DetailActivity2 extends BaseDetailActivity
 {
     // --------------

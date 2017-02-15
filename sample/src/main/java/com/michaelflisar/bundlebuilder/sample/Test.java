@@ -20,6 +20,8 @@ public class Test
     @Arg @Nullable
     String optionalValue;
 
+    int x;
+
     public Test(Bundle args)
     {
         TestBundleBuilder.inject(args, this);

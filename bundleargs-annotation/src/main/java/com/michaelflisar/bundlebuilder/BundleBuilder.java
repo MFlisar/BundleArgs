@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE) @Retention(RetentionPolicy.CLASS)
 public @interface BundleBuilder
 {
-    boolean createListOfArgs() default false;
     boolean useConstructorForMandatoryArgs() default false;
     String setterPrefix() default "";
+    boolean alwaysAddIntentBuilder() default false;
 }
