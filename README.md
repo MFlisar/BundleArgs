@@ -50,17 +50,8 @@ And this is how you define it in an activity:
 @BundleBuilder
 public class MyActivity extends Activity
 {
-	// --------------
-	// Arguments
-	// --------------
-
 	@Arg
 	String stringArg;
-
-
-	// --------------
-	// Activity
-	// --------------
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
