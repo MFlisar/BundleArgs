@@ -107,9 +107,8 @@ new MyActivityBundleBuilder()
 
 You can define some setup variables like following (each one is optional):
 
-    @BundleBuilder(createListOfArgs = true, useConstructorForMandatoryArgs = true, setterPrefix = "with")
+    @BundleBuilder(useConstructorForMandatoryArgs = true, setterPrefix = "with", alwaysAddIntentBuilder = false)
     
-* `boolean createListOfArgs()`: default: `false`... defines, if a `List<Object> allArgs = BundleBuilder.getArguments(bundle)` is generated. For the tests needed only, so the default value is false
 * `boolean useConstructorForMandatoryArgs()`:  default: `false`... if true, all mandatory fields will be part of the constructor, otherwise all mandatory fields need to be set with the builder style
 * `String setterPrefix()`:  default `""`... if not empty, all setters for the builder will be prefixed with this String. I.e. the field `customField` will be settable via a function `builder.withCustomField(...)` if the `setterPrefix == "with"`...
 * `boolean alwaysAddIntentBuilder()`: default: `false`... defines, if the `buildIntent` method is generated for non activity classes as well
