@@ -1,4 +1,4 @@
-#BundleArgs [![Release](https://jitpack.io/v/MFlisar/BundleArgs.svg)](https://jitpack.io/#MFlisar/BundleArgs) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-BundleArgs-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/5289) [Method count](https://img.shields.io/badge/Method%20count-4%20methods%20(6%20fields)-brightgreen.svg)
+#BundleArgs [![Release](https://jitpack.io/v/MFlisar/BundleArgs.svg)](https://jitpack.io/#MFlisar/BundleArgs) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-BundleArgs-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/5289) ![Method count](https://img.shields.io/badge/Method%20count-4%20methods%20(6%20fields)-brightgreen.svg)
 
 Let your IDE create your bundles/intents for you. This library is:
 * **reflection free**
