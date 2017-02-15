@@ -89,8 +89,6 @@ public class ArgElement
                 buildMethod
                         .addStatement("$N = $L", mParamName, primitiveDefaultValue);
             }
-
-
         }
         buildMethod.addStatement("intent.putExtra($S, $N)", mParamName, mParamName);
     }
@@ -108,11 +106,11 @@ public class ArgElement
                     if (!mNullable)
                         Util.addNullCheckWithException(buildMethod, this);
                 }
-                else if (initPrimitives)
-                {
-                    buildMethod
-                            .addStatement("$N = $L", mParamName, primitiveDefaultValue);
-                }
+//                else if (initPrimitives)
+//                {
+//                    buildMethod
+//                            .addStatement("$N = $L", mParamName, primitiveDefaultValue);
+//                }
             }
 
             buildMethod.addStatement("bundle.put$L($S, $N)", bundleFunctionName, mParamName, mParamName);
