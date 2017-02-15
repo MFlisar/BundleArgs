@@ -96,7 +96,7 @@ Intent intent = new TestBundleBuilder()
                 .id(1L)
                 .value("Test")
                 .optionalValue("optionalValue")
-                .buildIntent();
+                .buildIntent(context);
 ```
 
 4) If the annotated class extends `Activity`, following method will be added to start the activity directly;
