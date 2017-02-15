@@ -34,7 +34,6 @@ public class DetailActivity3 extends BaseDetailActivity
     @Arg(optional = true) @Nullable
     String optionalNullableWithOverwrittenDefaultValue = "default value";
 
-    int x = 0;
     // --------------
     // Activity
     // --------------
@@ -46,7 +45,5 @@ public class DetailActivity3 extends BaseDetailActivity
         DetailActivity3BundleBuilder.inject(getIntent().getExtras(), this);
 
         addArgsToList();
-        addValue("optionalNullableWithDefaultValue", optionalNullableWithDefaultValue);
-        addValue("optionalNullableWithOverwrittenDefaultValue", optionalNullableWithOverwrittenDefaultValue);
     }
 }
