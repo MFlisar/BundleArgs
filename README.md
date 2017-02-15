@@ -1,5 +1,5 @@
-#BundleArgs [![Release](https://jitpack.io/v/MFlisar/BundleArgs.svg)](https://jitpack.io/#MFlisar/BundleArgs)
-Type safe bundle/intent building for any class (activities, fragments, ...)
+#BundleArgs [![Release](https://jitpack.io/v/MFlisar/BundleArgs.svg)](https://jitpack.io/#MFlisar/BundleArgs) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-BundleArgs-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/5289)
+Type safe bundle/intent building for any class (activities, fragments, ...) 
 
 BundleBuilder is a type safe way of creating intents/bundles and populating them with extras. Intents/Bundles were created to be very dynamic but often times the dynamic nature of intents is not needed and just gets in the way of writing safe code.
 
@@ -24,7 +24,7 @@ dependencies {
 
 ### Usage
 
-Here's a simple example:
+Here's a simple example that demonstrates the use in ANY class that needs a `Bundle` argument:
 
 ```groovy
 @BundleBuilder
