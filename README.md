@@ -1,8 +1,7 @@
 #BundleArgs [![Release](https://jitpack.io/v/MFlisar/BundleArgs.svg)](https://jitpack.io/#MFlisar/BundleArgs) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-BundleArgs-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/5289)
-Type safe bundle/intent building for any class (activities, fragments, ...) 
+Type safe bundle/intent builder for any class (activities, fragments, ...) 
 
-BundleBuilder is a type safe way of creating intents/bundles and populating them with extras. Intents/Bundles were created to be very dynamic but often times the dynamic nature of intents is not needed and just gets in the way of writing safe code.
-
+BundleBuilder is a type safe and fast way of creating intents/bundles and populating them with extras.
  
 ### Gradle (via [JitPack.io](https://jitpack.io/))
 
@@ -74,7 +73,7 @@ public class MyActivity extends Activity
 
 ### Usage - Builder
 
-1) You can directly create class (if you have defined the default costructor with a bundle as args in it) like this:
+1) If you have defined the default costructor with a bundle as args in it, you can directly create a class like this:
 
 ```groovy
 Test test = new TestBundleBuilder()
@@ -125,7 +124,7 @@ You can define some setup variables like following (each one is optional):
 
 **`@Arg`**
 
-     @BundleBuilder(value = "", optional = false)
+     @Arg(value = "", optional = false)
 
 * `String value()`: default: `""`... if set, the builder setter will get the custom value instead of the one derived from the field name
 * `boolean optional()`: default: `false`... if true, fields are optional, if not, they must be set via constructor or via setter
