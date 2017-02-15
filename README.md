@@ -128,7 +128,7 @@ For an example with activities, check out the demo: [Demo](https://github.com/MF
 
 ### Credits
 
-This project is based on https://github.com/emilsjolander/IntentBuilder
+This project is generally based on https://github.com/emilsjolander/IntentBuilder but was improved and restructured heavily in the meantime.
 
 ### TODO
 
