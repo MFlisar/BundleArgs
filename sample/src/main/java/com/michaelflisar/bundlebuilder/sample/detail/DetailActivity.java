@@ -18,15 +18,21 @@ public class DetailActivity extends BaseDetailActivity
     @Arg
     String stringArg;
     @Arg @Nullable
-    String optionalStringArg;
+    String nullableRequiredStringArg;
     @Arg("withCustomArgSetterName") @Nullable
     String mWithCustomArgSetterName;
+
     @Arg
     Integer integerArg;
     @Arg
     int intArg;
     @Arg
     boolean boolArg;
+    @Arg(optional = true)
+    Boolean optionalBoolArgs;
+    @Arg(optional = true) @Nullable
+    Boolean optionalNullableBoolArgs;
+
 
     // --------------
     // Activity
@@ -37,7 +43,6 @@ public class DetailActivity extends BaseDetailActivity
     {
         super.onCreate(savedInstanceState);
         DetailActivityBundleBuilder.inject(getIntent().getExtras(), this);
-        setContentView(R.layout.activity_detail);
 
         addArgsToList();
     }

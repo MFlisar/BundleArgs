@@ -16,22 +16,27 @@ import java.util.List;
 
 public class BaseDetailActivity extends AppCompatActivity
 {
+    private LinearLayout mLinearLayout;
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+        mLinearLayout = (LinearLayout)findViewById(R.id.llMain);
     }
 
     protected void addArgsToList()
     {
-        LinearLayout ll = (LinearLayout)findViewById(R.id.llMain);
         List<Object> allArgs = DetailActivityBundleBuilder.getArguments(getIntent().getExtras());
         for (int i = 0; i < allArgs.size(); i++)
-        {
-            TextView tv = new TextView(this);
-            tv.setText(allArgs.get(i) != null ? ("[" + allArgs.get(i).getClass().getSimpleName() + "] " + allArgs.get(i).toString()) : "NULL");
-            ll.addView(tv);
-        }
+           addValue(null, allArgs.get(i));
+    }
+
+    protected void addValue(String customLabel, Object value)
+    {
+        TextView tv = new TextView(this);
+        tv.setText(value != null ? ("[" + (customLabel == null ? value.getClass().getSimpleName() : customLabel) + "] " + value.toString()) : (customLabel != null ? "[" + customLabel + "] " : "") + "NULL");
+        mLinearLayout.addView(tv);
     }
 }

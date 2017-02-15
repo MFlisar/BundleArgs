@@ -8,8 +8,8 @@ import com.michaelflisar.bundlebuilder.BundleBuilder;
 import com.michaelflisar.bundlebuilder.sample.R;
 import com.michaelflisar.bundlebuilder.sample.base.BaseDetailActivity;
 
-@BundleBuilder(createListOfArgs = true, useConstructorForMandatoryArgs = true)
-public class DetailActivity2 extends BaseDetailActivity
+@BundleBuilder(createListOfArgs = true, useConstructorForMandatoryArgs = false, setterPrefix = "with")
+public class DetailActivity3 extends BaseDetailActivity
 {
     // --------------
     // Arguments
@@ -19,8 +19,8 @@ public class DetailActivity2 extends BaseDetailActivity
     String stringArg;
     @Arg @Nullable
     String nullableStringArg;
-    @Arg("withCustomArgSetterName") @Nullable
-    String mWithCustomArgSetterName;
+    @Arg("customArgSetterName") @Nullable
+    String mValue;
     @Arg
     Integer integerArg;
     @Arg
@@ -29,8 +29,10 @@ public class DetailActivity2 extends BaseDetailActivity
     Boolean optionalBoolArgs;
     @Arg(optional = true) @Nullable
     Boolean optionalNullableBoolArgs;
-
-    int x;
+    @Arg(optional = true) @Nullable
+    String optionalNullableWithDefaultValue = "default value";
+    @Arg(optional = true) @Nullable
+    String optionalNullableWithOverwrittenDefaultValue = "default value";
 
     // --------------
     // Activity
@@ -40,8 +42,10 @@ public class DetailActivity2 extends BaseDetailActivity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        DetailActivity2BundleBuilder.inject(getIntent().getExtras(), this);
+        DetailActivity3BundleBuilder.inject(getIntent().getExtras(), this);
 
         addArgsToList();
+        addValue("optionalNullableWithDefaultValue", optionalNullableWithDefaultValue);
+        addValue("optionalNullableWithOverwrittenDefaultValue", optionalNullableWithOverwrittenDefaultValue);
     }
 }

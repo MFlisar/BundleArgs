@@ -1,5 +1,6 @@
 package com.michaelflisar.bundlebuilder;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,7 +22,6 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
@@ -106,9 +106,9 @@ public class Processor extends AbstractProcessor
 
     private TypeSpec getBuilderSpec(Element annotatedElement)
     {
-        List<Element> required = new ArrayList<>();
-        List<Element> optional = new ArrayList<>();
-        List<Element> all = new ArrayList<>();
+        List<ArgElement> required = new ArrayList<>();
+        List<ArgElement> optional = new ArrayList<>();
+        List<ArgElement> all = new ArrayList<>();
 
         getAnnotatedFields(annotatedElement, required, optional);
         all.addAll(required);
@@ -120,16 +120,18 @@ public class Processor extends AbstractProcessor
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
         // 2) create constructor with all necessary fields
-        createConstructor(annotatedElement, builder, required);
+        createConstructor(annotatedElement, builder, all);
 
         // 3) add methods for all optional fields
         addSetters(name, annotatedElement, builder, required, optional);
 
         // 4) add buildIntent method to create an intent
-        addBuildIntentFunction(annotatedElement, builder, required, optional);
+        addBuildIntentFunction(annotatedElement, builder, all);
+        addStartActivity(annotatedElement, builder);
+        addCreate(annotatedElement, builder);
 
         // 5) add build method to create a bundle
-        addBuildBundleFunction(annotatedElement, builder, required, optional);
+        addBuildBundleFunction(annotatedElement, builder, all);
 
         // 6) add inject method to read all fields into an annotated class
         addInjectFunction(annotatedElement, builder, all);
@@ -147,50 +149,39 @@ public class Processor extends AbstractProcessor
     // Main functions
     // --------------------
 
-    private void createConstructor(Element annotatedElement, TypeSpec.Builder builder, List<Element> required)
+    private void createConstructor(Element annotatedElement, TypeSpec.Builder builder, List<ArgElement> all)
     {
         MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC);
 
         // if desired, we add all mandatory fields to the constructor
-        if (annotatedElement.getAnnotation(BundleBuilder.class).useConstructorForMandatoryArgs())
-        {
-            for (Element e : required)
-            {
-                String paramName = getParamName(e);
-                Util.addFieldToConstructor(builder, constructor, e, paramName, true);
-            }
+        boolean useConstructorForMandatoryArgs = annotatedElement.getAnnotation(BundleBuilder.class).useConstructorForMandatoryArgs();
+        for (ArgElement e : all) {
+            e.addFieldsToClass(builder, useConstructorForMandatoryArgs);
+            e.addToConstructor(constructor, useConstructorForMandatoryArgs);
         }
 
         builder.addMethod(constructor.build());
     }
 
-    private void addSetters(String name, Element annotatedElement, TypeSpec.Builder builder, List<Element> required, List<Element> optional)
+    private void addSetters(String name, Element annotatedElement, TypeSpec.Builder builder, List<ArgElement> required, List<ArgElement> optional)
     {
-        List<Element> elementsToPrecess = new ArrayList<>();
+        List<ArgElement> elementsToPrecess = new ArrayList<>();
 
         // if desired, we add setters for all required fields
         if (!annotatedElement.getAnnotation(BundleBuilder.class).useConstructorForMandatoryArgs())
             elementsToPrecess.addAll(required);
+
         // we always add setters for all optional fields
         elementsToPrecess.addAll(optional);
 
+        String setterPrefix = annotatedElement.getAnnotation(BundleBuilder.class).setterPrefix();
         ClassName className = ClassName.get(getPackageName(annotatedElement), name);
-        for (Element e : elementsToPrecess)
-        {
-            String paramName = getParamName(e);
-            builder.addField(TypeName.get(e.asType()), paramName, Modifier.PRIVATE);
-            builder.addMethod(MethodSpec.methodBuilder(paramName)
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(TypeName.get(e.asType()), paramName)
-                    .addStatement("this.$N = $N", paramName, paramName)
-                    .addStatement("return this")
-                    .returns(className)
-                    .build());
-        }
+        for (ArgElement e : elementsToPrecess)
+            e.addSetter(builder, className, setterPrefix);
     }
 
-    private void addBuildIntentFunction(Element annotatedElement, TypeSpec.Builder builder, List<Element> required, List<Element> optional)
+    private void addBuildIntentFunction(Element annotatedElement, TypeSpec.Builder builder, List<ArgElement> all)
     {
         MethodSpec.Builder buildIntentMethod = MethodSpec.methodBuilder("buildIntent")
                 .addModifiers(Modifier.PUBLIC)
@@ -198,86 +189,95 @@ public class Processor extends AbstractProcessor
                 .addStatement("$T intent = new Intent(context, $T.class)", Intent.class, TypeName.get(annotatedElement.asType()));
 
         boolean useConstructorForMandatoryFields = annotatedElement.getAnnotation(BundleBuilder.class).useConstructorForMandatoryArgs();
-        for (Element e : required)
-        {
-            String paramName = getParamName(e);
-            Util.addFieldToIntent(buildIntentMethod, e, paramName, true, !useConstructorForMandatoryFields);
-        }
 
-        for (Element e : optional)
-        {
-            String paramName = getParamName(e);
-            Util.addFieldToIntent(buildIntentMethod, e, paramName, false, !useConstructorForMandatoryFields);
-        }
+        for (ArgElement e : all)
+            e.addFieldToIntent(buildIntentMethod, !useConstructorForMandatoryFields);
+
         buildIntentMethod.returns(Intent.class)
                 .addStatement("return intent");
         builder.addMethod(buildIntentMethod.build());
     }
 
-    private void addBuildBundleFunction(Element annotatedElement, TypeSpec.Builder builder, List<Element> required, List<Element> optional)
+    private void addStartActivity(Element annotatedElement, TypeSpec.Builder builder)
     {
-        // TODO: can be done without Intent! But the intent does not need to handle each variable type explicitely where as the Bundle needs to!
+        if (Util.checkIsOrExtendsActivity(elementUtils, typeUtils, annotatedElement))
+        {
+            MethodSpec.Builder buildMethod = MethodSpec.methodBuilder("startActivity")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(Context.class, "context")
+                    .addStatement("$T intent = $L", Intent.class, "buildIntent(context)")
+                    .addStatement("context.startActivity(intent)");
+
+            builder.addMethod(buildMethod.build());
+        }
+    }
+
+    private void addCreate(Element annotatedElement, TypeSpec.Builder builder)
+    {
+        if (Util.checkForConstructorWithBundle(annotatedElement))
+        {
+            ClassName className = ClassName.get(getPackageName(annotatedElement), annotatedElement.getSimpleName().toString());
+            MethodSpec.Builder buildMethod = MethodSpec.methodBuilder("create")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addStatement("$T bundle = $L", Bundle.class, "build()")
+                    .returns(className)
+                    .addStatement("return new $L(bundle)", annotatedElement.getSimpleName());
+
+            builder.addMethod(buildMethod.build());
+        }
+    }
+
+    private void addBuildBundleFunction(Element annotatedElement, TypeSpec.Builder builder, List<ArgElement> all)
+    {
         MethodSpec.Builder buildMethod = MethodSpec.methodBuilder("build")
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("$T bundle = new $T()", Bundle.class, Bundle.class);
 
         boolean useConstructorForMandatoryFields = annotatedElement.getAnnotation(BundleBuilder.class).useConstructorForMandatoryArgs();
-        for (Element e : required)
-        {
-            String paramName = getParamName(e);
-            Util.addFieldToBundle(buildMethod, e, paramName, true, !useConstructorForMandatoryFields);
-        }
-
-        for (Element e : optional)
-        {
-            String paramName = getParamName(e);
-            Util.addFieldToBundle(buildMethod, e, paramName, false, !useConstructorForMandatoryFields);
-        }
+        for (ArgElement e : all)
+            e.addFieldToBundle(buildMethod, !useConstructorForMandatoryFields);
 
         buildMethod.returns(Bundle.class)
                 .addStatement("return bundle");
         builder.addMethod(buildMethod.build());
     }
 
-    private void addInjectFunction(Element annotatedElement, TypeSpec.Builder builder, List<Element> all)
+    private void addInjectFunction(Element annotatedElement, TypeSpec.Builder builder, List<ArgElement> all)
     {
         MethodSpec.Builder injectMethod = MethodSpec.methodBuilder("inject")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(Bundle.class, "args")
                 .addParameter(TypeName.get(annotatedElement.asType()), "annotatedClass");
-        for (Element e : all)
-        {
-            String paramName = getParamName(e);
-            Util.addFieldToInjectFunction( injectMethod, e, paramName);
-        }
+
+        for (ArgElement e : all)
+            e.addFieldToInjection(injectMethod);
+
         builder.addMethod(injectMethod.build());
     }
 
-    private void addGetters(TypeSpec.Builder builder, List<Element> all)
+    private void addGetters(TypeSpec.Builder builder, List<ArgElement> all)
     {
-        for (Element e : all)
-        {
-            String paramName = getParamName(e);
-            Util.addFieldGetter(builder, e, paramName, getGetterName(paramName));
-        }
+        for (ArgElement e : all)
+            e.addFieldGetter(builder);
     }
 
-    private void addAllArgumentsAsListGetter(Element annotatedElement, TypeSpec.Builder builder, List<Element> all)
+    private void addAllArgumentsAsListGetter(Element annotatedElement, TypeSpec.Builder builder, List<ArgElement> all)
     {
         if (annotatedElement.getAnnotation(BundleBuilder.class).createListOfArgs())
         {
             MethodSpec.Builder listMethod = MethodSpec.methodBuilder("getArguments")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(Bundle.class, "bundle")
-                    .addStatement("$T<Object> list = new $T<Object>()", ArrayList.class, ArrayList.class)
-                    ;
-            for (Element e : all)
+                    .addStatement("$T<Object> list = new $T<Object>()", ArrayList.class, ArrayList.class);
+
+            for (ArgElement e : all)
             {
-                String paramName = getParamName(e);
+                String paramName = e.getParamName();
                 listMethod.beginControlFlow("if (bundle != null && bundle.containsKey($S))", paramName)
-                        .addStatement("list.add($L(bundle))", getGetterName(paramName))
+                        .addStatement("list.add($L(bundle))", e.getFieldGetterName())
                         .endControlFlow();
             }
+
             listMethod.returns(List.class)
                     .addStatement("return list");
             builder.addMethod(listMethod.build());
@@ -300,16 +300,17 @@ public class Processor extends AbstractProcessor
         return ((PackageElement)e).getQualifiedName().toString();
     }
 
-    private void getAnnotatedFields(Element annotatedElement, List<Element> required, List<Element> optional)
+    private void getAnnotatedFields(Element annotatedElement, List<ArgElement> required, List<ArgElement> optional)
     {
         for (Element e : annotatedElement.getEnclosedElements())
         {
             if (e.getAnnotation(Arg.class) != null)
             {
-                if (hasAnnotation(e, "Nullable"))
-                    optional.add(e);
+                ArgElement ae = new ArgElement(e);
+                if (ae.isOptional())
+                    optional.add(ae);
                 else
-                    required.add(e);
+                    required.add(ae);
             }
         }
 
@@ -318,26 +319,5 @@ public class Processor extends AbstractProcessor
         Element superClass = superClassType == null ? null : Processor.instance.typeUtils.asElement(superClassType);
         if (superClass != null && superClass.getKind() == ElementKind.CLASS)
             getAnnotatedFields(superClass, required, optional);
-    }
-
-    private boolean hasAnnotation(Element e, String name)
-    {
-        for (AnnotationMirror annotation : e.getAnnotationMirrors())
-        {
-            if (annotation.getAnnotationType().asElement().getSimpleName().toString().equals(name))
-                return true;
-        }
-        return false;
-    }
-
-    private String getParamName(Element e)
-    {
-        String extraValue = e.getAnnotation(Arg.class).value();
-        return extraValue != null && !extraValue.trim().isEmpty() ? extraValue : e.getSimpleName().toString();
-    }
-
-    private String getGetterName(String paramName)
-    {
-        return "get" + paramName.substring(0, 1).toUpperCase() + paramName.substring(1);
     }
 }

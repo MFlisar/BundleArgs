@@ -1,20 +1,23 @@
 package com.michaelflisar.bundlebuilder;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Parcelable;
 
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
 
 import java.io.Serializable;
 import java.util.HashMap;
 
+import javax.annotation.processing.Messager;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
+import javax.tools.Diagnostic;
 
 /**
  * Created by Michael on 14.02.2017.
@@ -37,7 +40,7 @@ public class Util
     };
 
     // Maps class names to Bundle.put<...> functions
-    private static HashMap<String, String> BUNDLE_FUNCTIONS_MAP = new HashMap<String, String>(){{
+    public static HashMap<String, String> BUNDLE_FUNCTIONS_MAP = new HashMap<String, String>(){{
 
         put(boolean.class.getName(), "Boolean");
         put(Boolean.class.getName(), "Boolean");
@@ -86,124 +89,41 @@ public class Util
         put(Bundle.class.getName(), "Bundle");
     }};
 
-    public static void addFieldToConstructor(TypeSpec.Builder builder, MethodSpec.Builder constructor , Element e, String paramName, boolean isMandatory)
+    public static boolean hasAnnotation(Element e, String simpleClassName)
     {
-        TypeMirror type = e.asType();
-        builder.addField(TypeName.get(e.asType()), paramName, Modifier.PRIVATE, Modifier.FINAL);
-        constructor.addParameter(TypeName.get(e.asType()), paramName);
-        if (isMandatory)
+        for (AnnotationMirror annotation : e.getAnnotationMirrors())
         {
-            Object primitiveDefaultValue = Util.PRIMITIVE_CLASSES_DEFAULTS.get(type.toString());
-            if (primitiveDefaultValue == null)
-            {
-                constructor
-                        .beginControlFlow("if ($N == null)", paramName)
-                        .addStatement("throw new RuntimeException($S)", String.format("Mandatory field \"%s\" missing!", paramName))
-                        .endControlFlow();
-            }
+            if (annotation.getAnnotationType().asElement().getSimpleName().toString().equals(simpleClassName))
+                return true;
         }
-        constructor.addStatement("this.$N = $N", paramName, paramName);
+        return false;
     }
 
-    public static void addFieldToBundle(MethodSpec.Builder buildMethod, Element e, String paramName, boolean isMandatory, boolean initPrimitives)
+    public static void addNullCheckWithException(MethodSpec.Builder buildMethod, ArgElement argElement)
     {
-        TypeMirror type = e.asType();
-        String bundleFunctionName = BUNDLE_FUNCTIONS_MAP.get(type.toString());
-        if (bundleFunctionName != null)
-        {
-            if (isMandatory)
-            {
-                Object primitiveDefaultValue = Util.PRIMITIVE_CLASSES_DEFAULTS.get(type.toString());
-                if (primitiveDefaultValue == null)
-                {
-                    buildMethod
-                            .beginControlFlow("if ($N == null)", paramName)
-                            .addStatement("throw new RuntimeException($S)", String.format("Mandatory field \"%s\" missing!", paramName))
-                            .endControlFlow();
-                }
-                else if (initPrimitives)
-                {
-                    buildMethod
-                            .addStatement("$N = $L", paramName, primitiveDefaultValue);
-                }
-            }
-
-            buildMethod.addStatement("bundle.put$L($S, $N)", bundleFunctionName, paramName, paramName);
-        }
-        else
-            buildMethod.addStatement("throw new RuntimeException($S)", String.format("Field type \"%s\" not supported!", type.toString()));
-    }
-
-    public static void addFieldToIntent(MethodSpec.Builder buildMethod, Element e, String paramName, boolean isMandatory, boolean initPrimitives)
-    {
-        TypeMirror type = e.asType();
-        if (isMandatory)
-        {
-            Object primitiveDefaultValue = Util.PRIMITIVE_CLASSES_DEFAULTS.get(type.toString());
-            if (primitiveDefaultValue == null)
-            {
-                buildMethod
-                        .beginControlFlow("if ($N == null)", paramName)
-                        .addStatement("throw new RuntimeException($S)", String.format("Mandatory field \"%s\" missing!", paramName))
-                        .endControlFlow();
-            }
-            else if (initPrimitives)
-            {
-                buildMethod
-                        .addStatement("$N = $L", paramName, primitiveDefaultValue);
-            }
-
-
-        }
-        buildMethod.addStatement("intent.putExtra($S, $N)", paramName, paramName);
-    }
-
-    public static void addFieldToInjectFunction(MethodSpec.Builder injectMethod, Element e, String paramName)
-    {
-        TypeMirror type = e.asType();
-        injectMethod.beginControlFlow("if (args != null && args.containsKey($S))", paramName)
-                .addStatement("annotatedClass.$N = ($T) args.get($S)", e.getSimpleName().toString(), e.asType(), paramName)
-                .nextControlFlow("else");
-
-        Object primitiveDefaultValue = Util.PRIMITIVE_CLASSES_DEFAULTS.get(type.toString());
-        if (primitiveDefaultValue == null)
-        {
-            injectMethod
-                    .addStatement("annotatedClass.$N = null", e.getSimpleName().toString());
-        }
-        else
-        {
-            injectMethod
-                    .addStatement("annotatedClass.$N = $L", e.getSimpleName().toString(), primitiveDefaultValue);
-        }
-        injectMethod
+        buildMethod
+                .beginControlFlow("if ($N == null)", argElement.getParamName())
+                .addStatement("throw new RuntimeException($S)", String.format("Mandatory field \"%s\" missing!", argElement.getParamName()))
                 .endControlFlow();
     }
 
-    public static void addFieldGetter(TypeSpec.Builder builder, Element e, String paramName, String getterName)
+    public static boolean checkForConstructorWithBundle(Element element)
     {
-        TypeMirror type = e.asType();
-        MethodSpec.Builder getterMethod = MethodSpec
-                .methodBuilder(getterName)
-                .returns(ClassName.get(e.asType()))
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(Bundle.class, "bundle")
-                .beginControlFlow("if (bundle != null && bundle.containsKey($S))", paramName)
-                .addStatement("return ($T) bundle.get($S)", e.asType(), paramName)
-                .nextControlFlow("else");
-        Object primitiveDefaultValue = Util.PRIMITIVE_CLASSES_DEFAULTS.get(type.toString());
-        if (primitiveDefaultValue == null)
+        for (ExecutableElement cons : ElementFilter.constructorsIn(element.getEnclosedElements()))
         {
-            getterMethod
-                    .addStatement("return null");
+            if (cons.getParameters().size() == 1 && cons.getParameters().get(0).asType().toString().equals(Bundle.class.getName()))
+                return true;
+
         }
-        else
-        {
-            getterMethod
-                    .addStatement("return $L", primitiveDefaultValue);
-        }
-        getterMethod
-                .endControlFlow();
-        builder.addMethod(getterMethod.build());
+
+        return false;
+    }
+
+    public static boolean checkIsOrExtendsActivity(Elements elementUtils, Types typeUtil, Element element)
+    {
+        TypeMirror activity = elementUtils.getTypeElement(Activity.class.getName()).asType();
+        if (typeUtil.isAssignable(element.asType(), activity))
+            return true;
+        return false;
     }
 }
