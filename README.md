@@ -1,9 +1,14 @@
 #BundleArgs [![Release](https://jitpack.io/v/MFlisar/BundleArgs.svg)](https://jitpack.io/#MFlisar/BundleArgs) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-BundleArgs-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/5289)
-Type safe bundle/intent builder for any class (activities, fragments, ...) 
 
-BundleBuilder is a type safe and fast way of creating intents/bundles and populating them with extras.
+Let your IDE create your bundles/intents for you. This library is:
+* **reflection-free**
+* typesafe
+* fast
+* **very small**
+* **supports any class**:`Activities`, `Fragments` and any other class => use one processor for all your needs
+* creates nice helper functions if appropriate
  
-### Gradle (via [JitPack.io](https://jitpack.io/))
+### How to add it to your project - Gradle (via [JitPack.io](https://jitpack.io/))
 
 1) add jitpack to your project's `build.gradle`:
 ```groovy
