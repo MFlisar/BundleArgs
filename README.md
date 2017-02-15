@@ -1,10 +1,10 @@
 #BundleArgs [![Release](https://jitpack.io/v/MFlisar/BundleArgs.svg)](https://jitpack.io/#MFlisar/BundleArgs) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-BundleArgs-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/5289)
 
 Let your IDE create your bundles/intents for you. This library is:
-* **reflection-free**
+* **reflection free**
 * typesafe
 * fast
-* **very small**
+* **very small** - a few lines of code only are added to the apk (just the annotation interfaces)
 * **supports any class**:`Activities`, `Fragments` and any other class => use one processor for all your needs
 * creates nice helper functions if appropriate
  
