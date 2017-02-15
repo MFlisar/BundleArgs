@@ -17,12 +17,12 @@ repositories {
 apply plugin: 'com.neenbedankt.android-apt'
 
 dependencies {
-    compile 'com.github.MFlisar:BundleBuilder:0.3'
-    apt 'com.github.MFlisar:BundleBuilder:0.3'
+    compile 'com.github.MFlisar:BundleBuilder:0.4'
+    apt 'com.github.MFlisar:BundleBuilder:0.4'
 }
 ```
 
-### Usage
+### Usage - Definitions
 
 Here's a simple example that demonstrates the use in ANY class that needs a `Bundle` argument:
 
@@ -37,6 +37,7 @@ public class Test
     @Arg @Nullable
     String optionalValue;
     
+    // define a constructor with Bundle args and the processor will create a build method that directly creates an object of this class
     public Test(Bundle args)
     {
         TestBundleBuilder.inject(args, this);
@@ -44,27 +45,94 @@ public class Test
 }
 ```
 
-And here's how you use the created builder:
+And this is how you define it in an activity:
 
 ```groovy
-Test test = new Test(new TestBundleBuilder()
+@BundleBuilder
+public class MyActivity extends Activity
+{
+	// --------------
+	// Arguments
+	// --------------
+
+	@Arg
+	String stringArg;
+
+
+	// --------------
+	// Activity
+	// --------------
+
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		MyActivityBundleBuilder.inject(getIntent().getExtras(), this);
+	}
+}
+```
+
+### Usage - Builder
+
+1) You can directly create class (if you have defined the default costructor with a bundle as args in it) like this:
+
+```groovy
+Test test = new TestBundleBuilder()
                 .id(1L)
                 .value("Test")
                 .optionalValue("optionalValue")
-                .build());
+                .create();
 ```
 
-For activities use the provider `buildIntent(context)` function to get an `Intent` - **IMPORTANT:** of course, the test class must be an activity in this case!
+2) You can always just create a `Bundle` with the builder like following:
+
 ```groovy
-Intent intent new TestActivityBundleBuilder()
+Bundle bundle = new TestBundleBuilder()
                 .id(1L)
                 .value("Test")
                 .optionalValue("optionalValue")
-                .buildIntent(TestActivity.this));
-startActivity(intent);
+                .build();
 ```
 
-Alternatively, if you annotate your classes with `@BundleBuilder(useConstructorForMandatoryArgs = true)`, the processor will create a constructor that forces you to pass in all required arguments and only optional arguments will be settable via a builder like chaining of setters.
+3) You can always just create an `Intent` with the builder like following:
+
+```groovy
+Intent intent = new TestBundleBuilder()
+                .id(1L)
+                .value("Test")
+                .optionalValue("optionalValue")
+                .buildIntent();
+```
+
+4) If the annotated class extends `Activity`, following method will be added to start the activity directly;
+
+```groovy
+new MyActivityBundleBuilder()
+        .stringArg("Test")
+        .startActivity(context);
+```
+###Customisation
+
+**`@BundleBuilder`**
+
+You can define some setup variables like following (each one is optional):
+
+    @BundleBuilder(createListOfArgs = true, useConstructorForMandatoryArgs = true, setterPrefix = "with")
+    
+* `boolean createListOfArgs()`: default: `false`... defines, if a `List<Object> allArgs = BundleBuilder.getArguments(bundle)` is generated. For the tests needed only, so the default value is false
+* `boolean useConstructorForMandatoryArgs()`:  default: `false`... if true, all mandatory fields will be part of the constructor, otherwise all mandatory fields need to be set with the builder style
+* `String setterPrefix()`:  default `""`... if not empty, all setters for the builder will be prefixed with this String. I.e. the field `customField` will be settable via a function `builder.withCustomField(...)` if the `setterPrefix == "with"`...
+
+**`@Arg`**
+
+     @BundleBuilder(value = "", optional = false)
+
+* `String value()`: default: `""`... if set, the builder setter will get the custom value instead of the one derived from the field name
+* `boolean optional()`: default: `false`... if true, fields are optional, if not, they must be set via constructor or via setter
+
+Additional, fields can be annotated with `@Nullable` to define, if the field is allowed to be null or not, the builder will make the corresponding checks if necessary
+
+###Demo
 
 For an example with activities, check out the demo: [Demo](https://github.com/MFlisar/BundleArgs/tree/master/sample/src/main/java/com/michaelflisar/bundlebuilder/sample)
 
