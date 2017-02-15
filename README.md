@@ -16,8 +16,8 @@ repositories {
 apply plugin: 'com.neenbedankt.android-apt'
 
 dependencies {
-    compile 'com.github.MFlisar:BundleBuilder:0.4'
-    apt 'com.github.MFlisar:BundleBuilder:0.4'
+    compile 'com.github.MFlisar:BundleBuilder:0.5'
+    apt 'com.github.MFlisar:BundleBuilder:0.5'
 }
 ```
 
