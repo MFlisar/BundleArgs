@@ -8,6 +8,9 @@ import com.michaelflisar.bundlebuilder.BundleBuilder;
 import com.michaelflisar.bundlebuilder.sample.R;
 import com.michaelflisar.bundlebuilder.sample.base.BaseDetailActivity;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 @BundleBuilder(createListOfArgs = true, useConstructorForMandatoryArgs = true)
 public class DetailActivity2 extends BaseDetailActivity
 {
@@ -29,8 +32,8 @@ public class DetailActivity2 extends BaseDetailActivity
     Boolean optionalBoolArgs;
     @Arg(optional = true) @Nullable
     Boolean optionalNullableBoolArgs;
-
-    int x;
+    @Arg(optional = true) @Nullable
+    ArrayList<String> stringArrayListArgs;
 
     // --------------
     // Activity

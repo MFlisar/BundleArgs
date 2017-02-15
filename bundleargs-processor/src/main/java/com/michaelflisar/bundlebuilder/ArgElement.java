@@ -11,6 +11,9 @@ import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
+import javax.tools.Diagnostic;
 
 /**
  * Created by Michael on 14.02.2017.
@@ -62,7 +65,7 @@ public class ArgElement
             constructor.addParameter(TypeName.get(mType), mParamName);
             if (!mNullable)
             {
-                Object primitiveDefaultValue = Util.PRIMITIVE_CLASSES_DEFAULTS.get(mType.toString());
+                Object primitiveDefaultValue = Util.getPrimitiveTypeDefaultValue(mType);
                 if (primitiveDefaultValue == null)
                     Util.addNullCheckWithException(constructor, this);
             }
@@ -75,7 +78,7 @@ public class ArgElement
     {
         if (!isOptional())
         {
-            Object primitiveDefaultValue = Util.PRIMITIVE_CLASSES_DEFAULTS.get(mType.toString());
+            Object primitiveDefaultValue = Util.getPrimitiveTypeDefaultValue(mType);
             if (primitiveDefaultValue == null)
             {
                 if (!mNullable)
@@ -92,14 +95,14 @@ public class ArgElement
         buildMethod.addStatement("intent.putExtra($S, $N)", mParamName, mParamName);
     }
 
-    public void addFieldToBundle(MethodSpec.Builder buildMethod, boolean initPrimitives)
+    public void addFieldToBundle(Elements elementUtils, Types typeUtils, Messager messager, MethodSpec.Builder buildMethod, boolean initPrimitives)
     {
-        String bundleFunctionName = Util.BUNDLE_FUNCTIONS_MAP.get(mType.toString());
+        String bundleFunctionName = Util.getBundleFunctionName(elementUtils, typeUtils, messager, mType);
         if (bundleFunctionName != null)
         {
             if (!isOptional())
             {
-                Object primitiveDefaultValue = Util.PRIMITIVE_CLASSES_DEFAULTS.get(mType.toString());
+                Object primitiveDefaultValue = Util.getPrimitiveTypeDefaultValue(mType);
                 if (primitiveDefaultValue == null)
                 {
                     if (!mNullable)
@@ -115,7 +118,7 @@ public class ArgElement
             buildMethod.addStatement("bundle.put$L($S, $N)", bundleFunctionName, mParamName, mParamName);
         }
         else
-            buildMethod.addStatement("throw new RuntimeException($S)", String.format("Field type \"%s\" not supported!", mType.toString()));
+            messager.printMessage(Diagnostic.Kind.ERROR, String.format("Field type \"%s\" not supported!", mType.toString()));
     }
 
     public void addFieldToInjection(MethodSpec.Builder injectMethod)
@@ -124,7 +127,7 @@ public class ArgElement
                 .addStatement("annotatedClass.$N = ($T) args.get($S)", mElement.getSimpleName().toString(), mType, mParamName)
                 .nextControlFlow("else");
 
-        Object primitiveDefaultValue = Util.PRIMITIVE_CLASSES_DEFAULTS.get(mType.toString());
+        Object primitiveDefaultValue = Util.getPrimitiveTypeDefaultValue(mType);
         if (primitiveDefaultValue == null)
         {
             injectMethod
@@ -160,7 +163,7 @@ public class ArgElement
                 .beginControlFlow("if (bundle != null && bundle.containsKey($S))", mParamName)
                 .addStatement("return ($T) bundle.get($S)", mType, mParamName)
                 .nextControlFlow("else");
-        Object primitiveDefaultValue = Util.PRIMITIVE_CLASSES_DEFAULTS.get(mType.toString());
+        Object primitiveDefaultValue = Util.getPrimitiveTypeDefaultValue(mType);
         if (primitiveDefaultValue == null)
         {
             getterMethod

@@ -94,7 +94,8 @@ public class Processor extends AbstractProcessor
             }
             catch (Exception e)
             {
-                logError(annotatedElement, "Could not create intent builder for %s: %s", annotatedElement.getSimpleName(), e.getMessage());
+                messager.printMessage(Diagnostic.Kind.ERROR, e.toString());
+                logError(annotatedElement, "Could not create BundleArgs builder class for %s: (Exception: %s)", annotatedElement.getSimpleName(), e.getMessage());
             }
         }
         return true;
@@ -235,7 +236,7 @@ public class Processor extends AbstractProcessor
 
         boolean useConstructorForMandatoryFields = annotatedElement.getAnnotation(BundleBuilder.class).useConstructorForMandatoryArgs();
         for (ArgElement e : all)
-            e.addFieldToBundle(buildMethod, !useConstructorForMandatoryFields);
+            e.addFieldToBundle(elementUtils, typeUtils, messager, buildMethod, !useConstructorForMandatoryFields);
 
         buildMethod.returns(Bundle.class)
                 .addStatement("return bundle");

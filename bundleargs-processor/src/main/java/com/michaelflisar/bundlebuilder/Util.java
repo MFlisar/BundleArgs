@@ -7,12 +7,14 @@ import android.os.Parcelable;
 import com.squareup.javapoet.MethodSpec;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
@@ -25,7 +27,7 @@ import javax.tools.Diagnostic;
 
 public class Util
 {
-    public static HashMap<String, Object> PRIMITIVE_CLASSES_DEFAULTS = new HashMap<String, Object>()
+    private static HashMap<String, Object> PRIMITIVE_CLASSES_DEFAULTS = new HashMap<String, Object>()
     {
         {
             put(boolean.class.getName(), false);
@@ -40,7 +42,7 @@ public class Util
     };
 
     // Maps class names to Bundle.put<...> functions
-    public static HashMap<String, String> BUNDLE_FUNCTIONS_MAP = new HashMap<String, String>(){{
+    private static HashMap<String, String> BUNDLE_FUNCTIONS_MAP = new HashMap<String, String>(){{
 
         put(boolean.class.getName(), "Boolean");
         put(Boolean.class.getName(), "Boolean");
@@ -88,6 +90,74 @@ public class Util
         put(CharSequence[].class.getName(), "CharSequenceArray");
         put(Bundle.class.getName(), "Bundle");
     }};
+
+    private static HashMap<String, String> BUNDLE_ARRAY_FUNCTIONS_MAP = new HashMap<String, String>(){{
+        put(String.class.getName(), "StringArrayList");
+        put(int.class.getName(), "IntegerArrayList");
+        put(Integer.class.getName(), "IntegerArrayList");
+        put(char.class.getName(), "CharSequenceArrayList");
+        put(Character.class.getName(), "CharSequenceArrayList");
+    }};
+
+    public static String getBundleFunctionName(Elements elementUtils, Types typeUtils, Messager messager, TypeMirror typeMirror)
+    {
+        String functionName = getArrayBundleFunctionName(elementUtils, typeUtils, messager, typeMirror);
+        if (functionName == null)
+            functionName = getSimpleBundleFunctionName(elementUtils, typeUtils, typeMirror);
+        return functionName;
+    }
+
+    public static Object getPrimitiveTypeDefaultValue(TypeMirror typeMirror)
+    {
+        return PRIMITIVE_CLASSES_DEFAULTS.get(typeMirror.toString());
+    }
+
+    private static String getSimpleBundleFunctionName(Elements elementUtils, Types typeUtils, TypeMirror typeMirror)
+    {
+        String functionName =  BUNDLE_FUNCTIONS_MAP.get(typeMirror.toString());
+        if (functionName == null)
+        {
+            if (typeUtils.isAssignable(typeMirror, elementUtils.getTypeElement("android.os.Parcelable").asType()))
+                functionName = "Parcelable";
+            else if (typeUtils.isAssignable(typeMirror, elementUtils.getTypeElement(Serializable.class.getName()).asType()))
+                functionName = "Serializable";
+        }
+        return functionName;
+    }
+
+    private static String getArrayBundleFunctionName(Elements elementUtils, Types typeUtils, Messager messager, TypeMirror typeMirror)
+    {
+//        if (true)
+//            return "String";
+        for (String key : BUNDLE_ARRAY_FUNCTIONS_MAP.keySet())
+        {
+            TypeMirror tm = getArrayListType(elementUtils, typeUtils, key);
+            if (tm != null && typeUtils.isAssignable(typeMirror, tm))
+                return BUNDLE_ARRAY_FUNCTIONS_MAP.get(key);
+        }
+        if (typeUtils.isAssignable(typeMirror, getWildcardType(elementUtils, typeUtils, "android.util.SparseArray", "android.os.Parcelable")))
+            return "SparseParcelableArray";
+
+
+        return null;
+    }
+
+    private static TypeMirror getArrayListType(Elements elementUtils, Types typeUtils, String elementType)
+    {
+        TypeElement arrayList = elementUtils.getTypeElement("java.util.ArrayList");
+        TypeElement typeElement = elementUtils.getTypeElement(elementType);
+        TypeMirror elType = typeElement != null ? typeElement.asType() : null;
+        if (elType != null)
+            return typeUtils.getDeclaredType(arrayList, elType);
+        return null;
+    }
+
+    private static TypeMirror getWildcardType(Elements elementUtils, Types typeUtils, String type, String elementType)
+    {
+        TypeElement arrayList = elementUtils.getTypeElement(type);
+        TypeMirror elType = elementUtils.getTypeElement(elementType).asType();
+        return typeUtils.getDeclaredType(arrayList, typeUtils.getWildcardType(elType, null));
+    }
 
     public static boolean hasAnnotation(Element e, String simpleClassName)
     {
