@@ -220,9 +220,8 @@ public class Processor extends AbstractProcessor
             ClassName className = ClassName.get(getPackageName(annotatedElement), annotatedElement.getSimpleName().toString());
             MethodSpec.Builder buildMethod = MethodSpec.methodBuilder("create")
                     .addModifiers(Modifier.PUBLIC)
-                    .addStatement("$T bundle = $L", Bundle.class, "build()")
                     .returns(className)
-                    .addStatement("return new $L(bundle)", annotatedElement.getSimpleName());
+                    .addStatement("return new $L(build())", annotatedElement.getSimpleName());
 
             builder.addMethod(buildMethod.build());
         }

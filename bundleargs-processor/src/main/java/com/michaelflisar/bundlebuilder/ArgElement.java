@@ -121,6 +121,9 @@ public class ArgElement
 
     public void addFieldToInjection(MethodSpec.Builder injectMethod)
     {
+        if (!mNullable)
+            Util.addContainsCheckWithException(injectMethod, this);
+
         injectMethod.beginControlFlow("if (args != null && args.containsKey($S))", mParamName)
                 .addStatement("annotatedClass.$N = ($T) args.get($S)", mElement.getSimpleName().toString(), mType, mParamName)
                 .nextControlFlow("else");
