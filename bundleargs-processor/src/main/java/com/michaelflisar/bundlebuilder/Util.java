@@ -177,11 +177,11 @@ public class Util
                 .endControlFlow();
     }
 
-    public static void addContainsCheckWithException(MethodSpec.Builder buildMethod, ArgElement argElement)
+    public static void addContainsCheckWithException(MethodSpec.Builder buildMethod, ArgElement argElement, String bundleName)
     {
         buildMethod
-                .beginControlFlow("if (args == null || !args.containsKey($S))", argElement.getParamName())
-                .addStatement("throw new RuntimeException($S)", String.format("Mandatory field '%s' missing in args!", argElement.getParamName()))
+                .beginControlFlow("if (" + bundleName + " == null || !" + bundleName + ".containsKey($S))", argElement.getParamName())
+                .addStatement("throw new RuntimeException($S)", String.format("Mandatory field '%s' missing in " + bundleName + "!", argElement.getParamName()))
                 .endControlFlow();
     }
 

@@ -122,7 +122,7 @@ public class ArgElement
     public void addFieldToInjection(MethodSpec.Builder injectMethod)
     {
         if (!mNullable)
-            Util.addContainsCheckWithException(injectMethod, this);
+            Util.addContainsCheckWithException(injectMethod, this, "args");
 
         injectMethod.beginControlFlow("if (args != null && args.containsKey($S))", mParamName)
                 .addStatement("annotatedClass.$N = ($T) args.get($S)", mElement.getSimpleName().toString(), mType, mParamName)
@@ -160,10 +160,18 @@ public class ArgElement
                 .methodBuilder(getFieldGetterName())
                 .returns(ClassName.get(mType))
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(Bundle.class, "bundle")
-                .beginControlFlow("if (bundle != null && bundle.containsKey($S))", mParamName)
-                .addStatement("return ($T) bundle.get($S)", mType, mParamName)
-                .nextControlFlow("else");
+                .addParameter(Bundle.class, "bundle");
+
+        if (!mNullable)
+            Util.addContainsCheckWithException(getterMethod, this, "bundle");
+        else
+        {
+            getterMethod
+                    .beginControlFlow("if (bundle != null && bundle.containsKey($S))", mParamName)
+                    .addStatement("return ($T) bundle.get($S)", mType, mParamName)
+                    .nextControlFlow("else");
+        }
+
         Object primitiveDefaultValue = Util.getPrimitiveTypeDefaultValue(mType);
         if (primitiveDefaultValue == null)
         {
@@ -172,11 +180,15 @@ public class ArgElement
         }
         else
         {
+
             getterMethod
                     .addStatement("return $L", primitiveDefaultValue);
         }
-        getterMethod
-                .endControlFlow();
+
+        if (mNullable)
+            getterMethod
+                    .endControlFlow();
+
         builder.addMethod(getterMethod.build());
     }
 
