@@ -73,38 +73,38 @@ public class MyActivity extends Activity
 
 ```groovy
 Test test = new TestBundleBuilder()
-                .id(1L)
-                .value("Test")
-                .optionalValue("optionalValue")
-                .create();
+	.id(1L)
+	.value("Test")
+	.optionalValue("optionalValue")
+	.create();
 ```
 
 2) You can always just create a `Bundle` with the builder like following:
 
 ```groovy
 Bundle bundle = new TestBundleBuilder()
-                .id(1L)
-                .value("Test")
-                .optionalValue("optionalValue")
-                .build();
+	.id(1L)
+	.value("Test")
+	.optionalValue("optionalValue")
+	.build();
 ```
 
 3) You can always just create an `Intent` with the builder like following (if the annotated class is an `Activity` or if the boolean flag `alwaysAddIntentBuilder` of the `BundleBuilder` is set to true:
 
 ```groovy
 Intent intent = new TestBundleBuilder()
-                .id(1L)
-                .value("Test")
-                .optionalValue("optionalValue")
-                .buildIntent(context);
+	.id(1L)
+	.value("Test")
+	.optionalValue("optionalValue")
+	.buildIntent(context);
 ```
 
 4) If the annotated class extends `Activity`, following method will be added to start the activity directly;
 
 ```groovy
 new MyActivityBundleBuilder()
-                .stringArg("Test")
-                .startActivity(context);
+	.stringArg("Test")
+	.startActivity(context);
 ```
 
 5) if the enable `useConstructorForMandatoryArgs` in the `@BundleBuilder` annotation, the generated builder will force you to set mandatory fields via the constructor like following:
@@ -112,8 +112,8 @@ new MyActivityBundleBuilder()
 
 ```groovy
 Bundle b = new TestBundleBuilder(1L, "Test") // you MUST supply mandatory fields
-                .optionalValue("optionalValue") // optional fields can be set via builder functions
-                .build();
+	.optionalValue("optionalValue") // optional fields can be set via builder functions
+	.build();
 ```
 
 ###Customisation
