@@ -1,10 +1,10 @@
-#BundleArgs [![Release](https://jitpack.io/v/MFlisar/BundleArgs.svg)](https://jitpack.io/#MFlisar/BundleArgs) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-BundleArgs-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/5289)
+#BundleArgs [![Release](https://jitpack.io/v/MFlisar/BundleArgs.svg)](https://jitpack.io/#MFlisar/BundleArgs) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-BundleArgs-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/5289) ![Method count](https://img.shields.io/badge/Method%20count-4%20methods%20(6%20fields)-brightgreen.svg)
 
 Let your IDE create your bundles/intents for you. This library is:
-* **reflection-free**
+* **reflection free**
 * typesafe
 * fast
-* **very small**
+* **very small** - just the annotation interfaces are added to your akp (4 methods, 6 fields)
 * **supports any class**:`Activities`, `Fragments` and any other class => use one processor for all your needs
 * creates nice helper functions if appropriate
  
@@ -73,39 +73,49 @@ public class MyActivity extends Activity
 
 ```groovy
 Test test = new TestBundleBuilder()
-                .id(1L)
-                .value("Test")
-                .optionalValue("optionalValue")
-                .create();
+	.id(1L)
+	.value("Test")
+	.optionalValue("optionalValue")
+	.create();
 ```
 
 2) You can always just create a `Bundle` with the builder like following:
 
 ```groovy
 Bundle bundle = new TestBundleBuilder()
-                .id(1L)
-                .value("Test")
-                .optionalValue("optionalValue")
-                .build();
+	.id(1L)
+	.value("Test")
+	.optionalValue("optionalValue")
+	.build();
 ```
 
 3) You can always just create an `Intent` with the builder like following (if the annotated class is an `Activity` or if the boolean flag `alwaysAddIntentBuilder` of the `BundleBuilder` is set to true:
 
 ```groovy
 Intent intent = new TestBundleBuilder()
-                .id(1L)
-                .value("Test")
-                .optionalValue("optionalValue")
-                .buildIntent();
+	.id(1L)
+	.value("Test")
+	.optionalValue("optionalValue")
+	.buildIntent(context);
 ```
 
 4) If the annotated class extends `Activity`, following method will be added to start the activity directly;
 
 ```groovy
 new MyActivityBundleBuilder()
-        .stringArg("Test")
-        .startActivity(context);
+	.stringArg("Test")
+	.startActivity(context);
 ```
+
+5) if the enable `useConstructorForMandatoryArgs` in the `@BundleBuilder` annotation, the generated builder will force you to set mandatory fields via the constructor like following:
+
+
+```groovy
+Bundle b = new TestBundleBuilder(1L, "Test") // you MUST supply mandatory fields
+	.optionalValue("optionalValue") // optional fields can be set via builder functions
+	.build();
+```
+
 ###Customisation
 
 **`@BundleBuilder`**
