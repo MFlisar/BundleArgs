@@ -103,9 +103,19 @@ Intent intent = new TestBundleBuilder()
 
 ```groovy
 new MyActivityBundleBuilder()
-        .stringArg("Test")
-        .startActivity(context);
+                .stringArg("Test")
+                .startActivity(context);
 ```
+
+5) if the enable `useConstructorForMandatoryArgs` in the `@BundleBuilder` annotation, the generated builder will force you to set mandatory fields via the constructor like following:
+
+
+```groovy
+Bundle b = new TestBundleBuilder(1L, "Test") // you MUST supply mandatory fields
+                .optionalValue("optionalValue") // optional fields can be set via builder functions
+                .build();
+```
+
 ###Customisation
 
 **`@BundleBuilder`**
