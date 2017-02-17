@@ -122,11 +122,12 @@ Bundle b = new TestBundleBuilder(1L, "Test") // you MUST supply mandatory fields
 
 You can define some setup variables like following (each one is optional):
 
-    @BundleBuilder(useConstructorForMandatoryArgs = true, setterPrefix = "with", alwaysAddIntentBuilder = false)
+    @BundleBuilder(useConstructorForMandatoryArgs = true, setterPrefix = "with", generateGetters = false, generateIntentBuilder = false)
     
 * `boolean useConstructorForMandatoryArgs()`:  default: `false`... if true, all mandatory fields will be part of the constructor, otherwise all mandatory fields need to be set with the builder style
 * `String setterPrefix()`:  default `""`... if not empty, all setters for the builder will be prefixed with this String. I.e. the field `customField` will be settable via a function `builder.withCustomField(...)` if the `setterPrefix == "with"`...
-* `boolean alwaysAddIntentBuilder()`: default: `false`... defines, if the `buildIntent` method is generated for non activity classes as well
+* `boolean generateGetters()`: default: `false`... defines, if the builder offers getter functions for each field to retrieve fields from a bundle directly
+* `boolean generateIntentBuilder()`: default: `false`... defines, if the `buildIntent` method is generated for non activity classes as well
 
 **`@Arg`**
 
