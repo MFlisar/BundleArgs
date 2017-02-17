@@ -138,7 +138,7 @@ public class Processor extends AbstractProcessor
         addInjectFunction(annotatedElement, builder, all);
 
         // 7) add getter functions for each fields
-        addGetters(builder, all);
+        addGetters(annotatedElement, builder, all);
 
         return builder.build();
     }
@@ -181,7 +181,7 @@ public class Processor extends AbstractProcessor
 
     private void addBuildIntentFunction(Element annotatedElement, TypeSpec.Builder builder, List<ArgElement> all)
     {
-        if (!annotatedElement.getAnnotation(BundleBuilder.class).alwaysAddIntentBuilder() && !Util.checkIsOrExtendsActivity(elementUtils, typeUtils, annotatedElement))
+        if (!annotatedElement.getAnnotation(BundleBuilder.class).generateIntentBuilder() && !Util.checkIsOrExtendsActivity(elementUtils, typeUtils, annotatedElement))
             return;
 
         MethodSpec.Builder buildIntentMethod = MethodSpec.methodBuilder("buildIntent")
@@ -255,8 +255,11 @@ public class Processor extends AbstractProcessor
         builder.addMethod(injectMethod.build());
     }
 
-    private void addGetters(TypeSpec.Builder builder, List<ArgElement> all)
+    private void addGetters(Element annotatedElement, TypeSpec.Builder builder, List<ArgElement> all)
     {
+        if (!annotatedElement.getAnnotation(BundleBuilder.class).generateGetters())
+            return;
+
         for (ArgElement e : all)
             e.addFieldGetter(builder);
     }

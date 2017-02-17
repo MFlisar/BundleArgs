@@ -10,5 +10,6 @@ public @interface BundleBuilder
 {
     boolean useConstructorForMandatoryArgs() default false;
     String setterPrefix() default "";
-    boolean alwaysAddIntentBuilder() default false;
+    boolean generateIntentBuilder() default false;
+    boolean generateGetters() default false;
 }
