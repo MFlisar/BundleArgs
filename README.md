@@ -1,4 +1,4 @@
-#BundleArgs [![Release](https://jitpack.io/v/MFlisar/BundleArgs.svg)](https://jitpack.io/#MFlisar/BundleArgs) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-BundleArgs-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/5289) ![Method count](https://img.shields.io/badge/Method%20count-4%20methods%20(6%20fields)-brightgreen.svg)
+# BundleArgs [![Release](https://jitpack.io/v/MFlisar/BundleArgs.svg)](https://jitpack.io/#MFlisar/BundleArgs) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-BundleArgs-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/5289) ![Method count](https://img.shields.io/badge/Method%20count-4%20methods%20(6%20fields)-brightgreen.svg)
 
 Let your IDE create your bundles/intents for you. This library is:
 * **reflection free**
@@ -116,7 +116,7 @@ Bundle b = new TestBundleBuilder(1L, "Test") // you MUST supply mandatory fields
 	.build();
 ```
 
-###Customisation
+### Customisation
 
 **`@BundleBuilder`**
 
@@ -138,7 +138,7 @@ You can define some setup variables like following (each one is optional):
 
 Additional, fields can be annotated with `@Nullable` to define, if the field is allowed to be null or not, the builder will make the corresponding checks if necessary
 
-###Demo
+### Demo
 
 For an example with activities, check out the demo: [Demo](https://github.com/MFlisar/BundleArgs/tree/master/sample/src/main/java/com/michaelflisar/bundlebuilder/sample)
 
