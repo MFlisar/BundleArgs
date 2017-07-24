@@ -1,4 +1,4 @@
-#BundleArgs [![Release](https://jitpack.io/v/MFlisar/BundleArgs.svg)](https://jitpack.io/#MFlisar/BundleArgs) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-BundleArgs-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/5289) ![Method count](https://img.shields.io/badge/Method%20count-4%20methods%20(6%20fields)-brightgreen.svg)
+# BundleArgs [![Release](https://jitpack.io/v/MFlisar/BundleArgs.svg)](https://jitpack.io/#MFlisar/BundleArgs) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-BundleArgs-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/5289) ![Method count](https://img.shields.io/badge/Method%20count-4%20methods%20(6%20fields)-brightgreen.svg)
 
 Let your IDE create your bundles/intents for you. This library is:
 * **reflection free**
@@ -21,8 +21,8 @@ repositories {
 apply plugin: 'com.neenbedankt.android-apt'
 
 dependencies {
-    compile 'com.github.MFlisar:BundleBuilder:0.6'
-    apt 'com.github.MFlisar:BundleBuilder:0.6'
+    compile 'com.github.MFlisar:BundleBuilder:0.7'
+    apt 'com.github.MFlisar:BundleBuilder:0.7'
 }
 ```
 
@@ -116,17 +116,18 @@ Bundle b = new TestBundleBuilder(1L, "Test") // you MUST supply mandatory fields
 	.build();
 ```
 
-###Customisation
+### Customisation
 
 **`@BundleBuilder`**
 
 You can define some setup variables like following (each one is optional):
 
-    @BundleBuilder(useConstructorForMandatoryArgs = true, setterPrefix = "with", alwaysAddIntentBuilder = false)
+    @BundleBuilder(useConstructorForMandatoryArgs = true, setterPrefix = "with", generateGetters = false, generateIntentBuilder = false)
     
 * `boolean useConstructorForMandatoryArgs()`:  default: `false`... if true, all mandatory fields will be part of the constructor, otherwise all mandatory fields need to be set with the builder style
 * `String setterPrefix()`:  default `""`... if not empty, all setters for the builder will be prefixed with this String. I.e. the field `customField` will be settable via a function `builder.withCustomField(...)` if the `setterPrefix == "with"`...
-* `boolean alwaysAddIntentBuilder()`: default: `false`... defines, if the `buildIntent` method is generated for non activity classes as well
+* `boolean generateGetters()`: default: `false`... defines, if the builder offers getter functions for each field to retrieve fields from a bundle directly
+* `boolean generateIntentBuilder()`: default: `false`... defines, if the `buildIntent` method is generated for non activity classes as well
 
 **`@Arg`**
 
@@ -137,7 +138,7 @@ You can define some setup variables like following (each one is optional):
 
 Additional, fields can be annotated with `@Nullable` to define, if the field is allowed to be null or not, the builder will make the corresponding checks if necessary
 
-###Demo
+### Demo
 
 For an example with activities, check out the demo: [Demo](https://github.com/MFlisar/BundleArgs/tree/master/sample/src/main/java/com/michaelflisar/bundlebuilder/sample)
 
