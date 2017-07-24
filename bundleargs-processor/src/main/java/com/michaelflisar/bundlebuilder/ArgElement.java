@@ -51,12 +51,11 @@ public class ArgElement
 
     public void addFieldsToClass(TypeSpec.Builder builder, boolean useConstructorForMandatoryArgs)
     {
+        builder.addField(TypeName.BOOLEAN, mParamName + mParamIsSetPostFix, Modifier.PRIVATE);
         if (!mOptional && useConstructorForMandatoryArgs)
             builder.addField(TypeName.get(mType), mParamName, Modifier.PRIVATE, Modifier.FINAL);
-        else {
-            builder.addField(TypeName.BOOLEAN, mParamName + mParamIsSetPostFix, Modifier.PRIVATE);
+        else
             builder.addField(TypeName.get(mType), mParamName, Modifier.PRIVATE);
-        }
     }
 
     public void addToConstructor(MethodSpec.Builder constructor, boolean useConstructorForMandatoryArgs)

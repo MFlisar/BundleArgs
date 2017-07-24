@@ -22,7 +22,7 @@ public class DetailActivity2 extends BaseDetailActivity
     String stringArg;
     @Arg @Nullable
     String nullableStringArg;
-    @Arg("withCustomArgSetterName") @Nullable
+    @Arg(name = "withCustomArgSetterName") @Nullable
     String mWithCustomArgSetterName;
     @Arg
     Integer integerArg;

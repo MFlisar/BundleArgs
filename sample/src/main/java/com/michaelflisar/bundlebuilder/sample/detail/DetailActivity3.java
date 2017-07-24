@@ -19,8 +19,8 @@ public class DetailActivity3 extends BaseDetailActivity
     String stringArg;
     @Arg @Nullable
     String nullableStringArg;
-    @Arg("customArgSetterName") @Nullable
-    String mValue;
+    @Arg(name = "customArgSetterName") @Nullable
+    String mValue1;
     @Arg
     Integer integerArg;
     @Arg

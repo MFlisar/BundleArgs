@@ -19,7 +19,7 @@ public class DetailActivity extends BaseDetailActivity
     String stringArg;
     @Arg @Nullable
     String nullableRequiredStringArg;
-    @Arg("withCustomArgSetterName") @Nullable
+    @Arg(name = "withCustomArgSetterName") @Nullable
     String mWithCustomArgSetterName;
 
     @Arg
