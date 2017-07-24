@@ -21,8 +21,8 @@ repositories {
 apply plugin: 'com.neenbedankt.android-apt'
 
 dependencies {
-    compile 'com.github.MFlisar:BundleBuilder:0.7'
-    apt 'com.github.MFlisar:BundleBuilder:0.7'
+    compile 'com.github.MFlisar:BundleBuilder:0.8'
+    apt 'com.github.MFlisar:BundleBuilder:0.8'
 }
 ```
 
@@ -133,10 +133,10 @@ You can define some setup variables like following (each one is optional):
 
      @Arg(value = "", optional = false)
 
-* `String value()`: default: `""`... if set, the builder setter will get the custom value instead of the one derived from the field name
+* `String name()`: default: `""`... if set, the builder setter will get the custom name instead of the one derived from the field name
 * `boolean optional()`: default: `false`... if true, fields are optional, if not, they must be set via constructor or via setter
 
-Additional, fields can be annotated with `@Nullable` to define, if the field is allowed to be null or not, the builder will make the corresponding checks if necessary
+<!-- Additional, fields can be annotated with `@Nullable` to define, if the field is allowed to be null or not, the builder will make the corresponding checks if necessary -->
 
 ### Demo
 
