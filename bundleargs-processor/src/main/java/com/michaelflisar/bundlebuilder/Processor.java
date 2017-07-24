@@ -1,6 +1,5 @@
 package com.michaelflisar.bundlebuilder;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,6 +27,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
@@ -129,6 +129,7 @@ public class Processor extends AbstractProcessor
         // 4) add buildIntent method to create an intent
         addBuildIntentFunction(annotatedElement, builder, all);
         addStartActivity(annotatedElement, builder);
+        addCreateFragment(annotatedElement, builder);
         addCreate(annotatedElement, builder);
 
         // 5) add build method to create a bundle
@@ -213,6 +214,23 @@ public class Processor extends AbstractProcessor
         }
     }
 
+    private void addCreateFragment(Element annotatedElement, TypeSpec.Builder builder)
+    {
+        if (Util.checkIsOrExtendsFragment(elementUtils, typeUtils, annotatedElement))
+        {
+            ClassName className = ClassName.get(getPackageName(annotatedElement), annotatedElement.getSimpleName().toString());
+            MethodSpec.Builder buildMethod = MethodSpec.methodBuilder("createFragment")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addStatement("$L fragment = new $L()", annotatedElement.getSimpleName(), annotatedElement.getSimpleName())
+                    .addStatement("$T args = $L", Bundle.class, "build()")
+                    .addStatement("fragment.setArguments(args)")
+                    .returns(className)
+                    .addStatement("return fragment");
+
+            builder.addMethod(buildMethod.build());
+        }
+    }
+
     private void addCreate(Element annotatedElement, TypeSpec.Builder builder)
     {
         if (Util.checkForConstructorWithBundle(annotatedElement))
@@ -261,7 +279,7 @@ public class Processor extends AbstractProcessor
             return;
 
         for (ArgElement e : all)
-            e.addFieldGetter(builder);
+            e.addFieldGetter(annotatedElement, builder);
     }
 
     // --------------------

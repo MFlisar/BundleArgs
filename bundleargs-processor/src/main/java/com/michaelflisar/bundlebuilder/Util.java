@@ -1,6 +1,7 @@
 package com.michaelflisar.bundlebuilder;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Parcelable;
 
@@ -9,6 +10,7 @@ import com.squareup.javapoet.MethodSpec;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.AnnotationMirror;
@@ -27,17 +29,17 @@ import javax.tools.Diagnostic;
 
 public class Util
 {
-    private static HashMap<String, Object> PRIMITIVE_CLASSES_DEFAULTS = new HashMap<String, Object>()
+    private static HashSet<String> PRIMITIVE_CLASSES = new HashSet<String>()
     {
         {
-            put(boolean.class.getName(), false);
-            put(byte.class.getName(), 0);
-            put(char.class.getName(), "");
-            put(short.class.getName(), 0);
-            put(int.class.getName(), 0);
-            put(long.class.getName(), 0L);
-            put(float.class.getName(), 0.0);
-            put(double.class.getName(), 0.0);
+            add(boolean.class.getName());
+            add(byte.class.getName());
+            add(char.class.getName());
+            add(short.class.getName());
+            add(int.class.getName());
+            add(long.class.getName());
+            add(float.class.getName());
+            add(double.class.getName());
         }
     };
 
@@ -107,14 +109,14 @@ public class Util
         return functionName;
     }
 
-    public static Object getPrimitiveTypeDefaultValue(TypeMirror typeMirror)
+    public static boolean isPrimitiveType(TypeMirror typeMirror)
     {
-        return PRIMITIVE_CLASSES_DEFAULTS.get(typeMirror.toString());
+        return PRIMITIVE_CLASSES.contains(typeMirror.toString());
     }
 
     private static String getSimpleBundleFunctionName(Elements elementUtils, Types typeUtils, TypeMirror typeMirror)
     {
-        String functionName =  BUNDLE_FUNCTIONS_MAP.get(typeMirror.toString());
+        String functionName = BUNDLE_FUNCTIONS_MAP.get(typeMirror.toString());
         if (functionName == null)
         {
             if (typeUtils.isAssignable(typeMirror, elementUtils.getTypeElement("android.os.Parcelable").asType()))
@@ -201,6 +203,15 @@ public class Util
     {
         TypeMirror activity = elementUtils.getTypeElement(Activity.class.getName()).asType();
         if (typeUtil.isAssignable(element.asType(), activity))
+            return true;
+        return false;
+    }
+
+    public static boolean checkIsOrExtendsFragment(Elements elementUtils, Types typeUtil, Element element)
+    {
+        TypeMirror fragment = elementUtils.getTypeElement(Fragment.class.getName()).asType();
+        TypeMirror supportFragment = elementUtils.getTypeElement(android.support.v4.app.Fragment.class.getName()).asType();
+        if (typeUtil.isAssignable(element.asType(), fragment) || typeUtil.isAssignable(element.asType(), supportFragment))
             return true;
         return false;
     }
