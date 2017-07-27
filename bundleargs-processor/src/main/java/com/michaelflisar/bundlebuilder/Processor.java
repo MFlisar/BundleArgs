@@ -1,8 +1,10 @@
 package com.michaelflisar.bundlebuilder;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
@@ -209,6 +211,30 @@ public class Processor extends AbstractProcessor
                     .addParameter(Context.class, "context")
                     .addStatement("$T intent = $L", Intent.class, "buildIntent(context)")
                     .addStatement("context.startActivity(intent)");
+            builder.addMethod(buildMethod.build());
+
+            buildMethod = MethodSpec.methodBuilder("startActivityForResult")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(Activity.class, "activity")
+                    .addParameter(int.class, "requestCode")
+                    .addStatement("$T intent = $L", Intent.class, "buildIntent(activity)")
+                    .addStatement("activity.startActivityForResult(intent, requestCode)");
+            builder.addMethod(buildMethod.build());
+
+            buildMethod = MethodSpec.methodBuilder("startActivityForResult")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(Fragment.class, "fragment")
+                    .addParameter(int.class, "requestCode")
+                    .addStatement("$T intent = $L", Intent.class, "buildIntent(fragment.getContext())")
+                    .addStatement("fragment.startActivityForResult(intent, requestCode)");
+            builder.addMethod(buildMethod.build());
+
+            buildMethod = MethodSpec.methodBuilder("startActivityForResult")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(android.app.Fragment.class, "fragment")
+                    .addParameter(int.class, "requestCode")
+                    .addStatement("$T intent = $L", Intent.class, "buildIntent(fragment.getContext())")
+                    .addStatement("fragment.startActivityForResult(intent, requestCode)");
 
             builder.addMethod(buildMethod.build());
         }
