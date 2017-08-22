@@ -22,7 +22,7 @@ apply plugin: 'com.neenbedankt.android-apt'
 
 dependencies {
     compile 'com.github.MFlisar:BundleBuilder:0.9'
-    apt 'com.github.MFlisar:BundleBuilder:0.9'
+    annotationProcessor 'com.github.MFlisar:BundleBuilder:0.9'
 }
 ```
 
