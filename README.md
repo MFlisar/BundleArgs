@@ -18,11 +18,9 @@ repositories {
 ```
 2) add the compile statement to your module's `build.gradle` and apply the apt plugin:
 ```groovy
-apply plugin: 'com.neenbedankt.android-apt'
-
 dependencies {
-    compile 'com.github.MFlisar:BundleBuilder:0.9'
-    annotationProcessor 'com.github.MFlisar:BundleBuilder:0.9'
+    compile 'com.github.MFlisar:BundleArgs:0.9'
+    annotationProcessor 'com.github.MFlisar:BundleArgs:0.9'
 }
 ```
 
