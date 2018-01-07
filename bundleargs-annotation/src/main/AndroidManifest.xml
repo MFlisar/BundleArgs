@@ -2,7 +2,4 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.michaelflisar.bundlebuilder">
 
-    <application android:allowBackup="true">
-    </application>
-
 </manifest>
