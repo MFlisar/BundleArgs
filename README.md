@@ -19,8 +19,8 @@ repositories {
 2) add the compile statement to your module's `build.gradle` and apply the apt plugin:
 ```groovy
 dependencies {
-    compile 'com.github.MFlisar.BundleArgs:bundleargs-annotation:1.0'
-    annotationProcessor 'com.github.MFlisar.BundleArgs:bundleargs-processor:1.0'
+    compile 'com.github.MFlisar.BundleArgs:bundleargs-annotation:1.1'
+    annotationProcessor 'com.github.MFlisar.BundleArgs:bundleargs-processor:1.1'
 }
 ```
 
