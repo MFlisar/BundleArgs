@@ -8,7 +8,6 @@ import android.os.Parcelable;
 import com.squareup.javapoet.MethodSpec;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -21,16 +20,15 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import javax.tools.Diagnostic;
 
 /**
  * Created by Michael on 14.02.2017.
  */
 
-public class Util
-{
-    private static HashSet<String> PRIMITIVE_CLASSES = new HashSet<String>()
-    {
+public class Util {
+    public static final String FIELD_HASH_MAP_NAME = "mFieldMap";
+
+    private static HashSet<String> PRIMITIVE_CLASSES = new HashSet<String>() {
         {
             add(boolean.class.getName());
             add(byte.class.getName());
@@ -44,7 +42,7 @@ public class Util
     };
 
     // Maps class names to Bundle.put<...> functions
-    private static HashMap<String, String> BUNDLE_FUNCTIONS_MAP = new HashMap<String, String>(){{
+    private static HashMap<String, String> BUNDLE_FUNCTIONS_MAP = new HashMap<String, String>() {{
 
         put(boolean.class.getName(), "Boolean");
         put(Boolean.class.getName(), "Boolean");
@@ -93,7 +91,7 @@ public class Util
         put(Bundle.class.getName(), "Bundle");
     }};
 
-    private static HashMap<String, String> BUNDLE_ARRAY_FUNCTIONS_MAP = new HashMap<String, String>(){{
+    private static HashMap<String, String> BUNDLE_ARRAY_FUNCTIONS_MAP = new HashMap<String, String>() {{
         put(String.class.getName(), "StringArrayList");
         put(int.class.getName(), "IntegerArrayList");
         put(Integer.class.getName(), "IntegerArrayList");
@@ -101,118 +99,117 @@ public class Util
         put(Character.class.getName(), "CharSequenceArrayList");
     }};
 
-    public static String getBundleFunctionName(Elements elementUtils, Types typeUtils, Messager messager, TypeMirror typeMirror)
-    {
+    public static String getBundleFunctionName(Elements elementUtils, Types typeUtils, Messager messager, TypeMirror typeMirror) {
         String functionName = getArrayBundleFunctionName(elementUtils, typeUtils, messager, typeMirror);
-        if (functionName == null)
+        if (functionName == null) {
             functionName = getSimpleBundleFunctionName(elementUtils, typeUtils, typeMirror);
+        }
         return functionName;
     }
 
-    public static boolean isPrimitiveType(TypeMirror typeMirror)
-    {
+    public static boolean isPrimitiveType(TypeMirror typeMirror) {
         return PRIMITIVE_CLASSES.contains(typeMirror.toString());
     }
 
-    private static String getSimpleBundleFunctionName(Elements elementUtils, Types typeUtils, TypeMirror typeMirror)
-    {
+    private static String getSimpleBundleFunctionName(Elements elementUtils, Types typeUtils, TypeMirror typeMirror) {
         String functionName = BUNDLE_FUNCTIONS_MAP.get(typeMirror.toString());
-        if (functionName == null)
-        {
-            if (typeUtils.isAssignable(typeMirror, elementUtils.getTypeElement("android.os.Parcelable").asType()))
+        if (functionName == null) {
+            if (typeUtils.isAssignable(typeMirror, elementUtils.getTypeElement("android.os.Parcelable").asType())) {
                 functionName = "Parcelable";
-            else if (typeUtils.isAssignable(typeMirror, elementUtils.getTypeElement(Serializable.class.getName()).asType()))
+            } else if (typeUtils.isAssignable(typeMirror, elementUtils.getTypeElement(Serializable.class.getName()).asType())) {
                 functionName = "Serializable";
+            }
         }
         return functionName;
     }
 
-    private static String getArrayBundleFunctionName(Elements elementUtils, Types typeUtils, Messager messager, TypeMirror typeMirror)
-    {
+    private static String getArrayBundleFunctionName(Elements elementUtils, Types typeUtils, Messager messager, TypeMirror typeMirror) {
 //        if (true)
 //            return "String";
-        for (String key : BUNDLE_ARRAY_FUNCTIONS_MAP.keySet())
-        {
+        for (String key : BUNDLE_ARRAY_FUNCTIONS_MAP.keySet()) {
             TypeMirror tm = getArrayListType(elementUtils, typeUtils, key);
-            if (tm != null && typeUtils.isAssignable(typeMirror, tm))
+            if (tm != null && typeUtils.isAssignable(typeMirror, tm)) {
                 return BUNDLE_ARRAY_FUNCTIONS_MAP.get(key);
+            }
         }
-        if (typeUtils.isAssignable(typeMirror, getWildcardType(elementUtils, typeUtils, "android.util.SparseArray", "android.os.Parcelable")))
+        if (typeUtils.isAssignable(typeMirror, getWildcardType(elementUtils, typeUtils, "android.util.SparseArray", "android.os.Parcelable"))) {
             return "SparseParcelableArray";
+        }
 
 
         return null;
     }
 
-    private static TypeMirror getArrayListType(Elements elementUtils, Types typeUtils, String elementType)
-    {
+    private static TypeMirror getArrayListType(Elements elementUtils, Types typeUtils, String elementType) {
         TypeElement arrayList = elementUtils.getTypeElement("java.util.ArrayList");
         TypeElement typeElement = elementUtils.getTypeElement(elementType);
         TypeMirror elType = typeElement != null ? typeElement.asType() : null;
-        if (elType != null)
+        if (elType != null) {
             return typeUtils.getDeclaredType(arrayList, elType);
+        }
         return null;
     }
 
-    private static TypeMirror getWildcardType(Elements elementUtils, Types typeUtils, String type, String elementType)
-    {
+    private static TypeMirror getWildcardType(Elements elementUtils, Types typeUtils, String type, String elementType) {
         TypeElement arrayList = elementUtils.getTypeElement(type);
         TypeMirror elType = elementUtils.getTypeElement(elementType).asType();
         return typeUtils.getDeclaredType(arrayList, typeUtils.getWildcardType(elType, null));
     }
 
-    public static boolean hasAnnotation(Element e, String simpleClassName)
-    {
-        for (AnnotationMirror annotation : e.getAnnotationMirrors())
-        {
-            if (annotation.getAnnotationType().asElement().getSimpleName().toString().equals(simpleClassName))
+    public static boolean hasAnnotation(Element e, String simpleClassName) {
+        for (AnnotationMirror annotation : e.getAnnotationMirrors()) {
+            if (annotation.getAnnotationType().asElement().getSimpleName().toString().equals(simpleClassName)) {
                 return true;
+            }
         }
         return false;
     }
 
-    public static void addNullCheckWithException(MethodSpec.Builder buildMethod, ArgElement argElement)
-    {
+    public static void addNullCheckWithException(MethodSpec.Builder buildMethod, ArgElement argElement, boolean checkHashMap) {
+        if (checkHashMap) {
+            buildMethod
+                    .beginControlFlow("if (!$N.containsKey($S) || $N.get($S).second == null)", Util.FIELD_HASH_MAP_NAME, argElement.getParamName(), Util.FIELD_HASH_MAP_NAME,
+                            argElement.getParamName());
+        } else {
+            buildMethod.beginControlFlow("if ($N == null)", argElement.getParamName());
+        }
         buildMethod
-                .beginControlFlow("if ($N == null)", argElement.getParamName())
                 .addStatement("throw new RuntimeException($S)", String.format("Mandatory field '%s' missing!", argElement.getParamName()))
                 .endControlFlow();
     }
 
-    public static void addContainsCheckWithException(MethodSpec.Builder buildMethod, ArgElement argElement, String bundleName)
-    {
+    public static void addContainsCheckWithException(MethodSpec.Builder buildMethod, ArgElement argElement, String bundleName) {
         buildMethod
                 .beginControlFlow("if (" + bundleName + " == null || !" + bundleName + ".containsKey($S))", argElement.getParamName())
                 .addStatement("throw new RuntimeException($S)", String.format("Mandatory field '%s' missing in " + bundleName + "!", argElement.getParamName()))
                 .endControlFlow();
     }
 
-    public static boolean checkForConstructorWithBundle(Element element)
-    {
-        for (ExecutableElement cons : ElementFilter.constructorsIn(element.getEnclosedElements()))
-        {
-            if (cons.getParameters().size() == 1 && cons.getParameters().get(0).asType().toString().equals(Bundle.class.getName()))
+    public static boolean checkForConstructorWithBundle(Element element) {
+        for (ExecutableElement cons : ElementFilter.constructorsIn(element.getEnclosedElements())) {
+            if (cons.getParameters().size() == 1 && cons.getParameters().get(0).asType().toString().equals(Bundle.class.getName())) {
                 return true;
+            }
 
         }
 
         return false;
     }
 
-    public static boolean checkIsOrExtendsActivity(Elements elementUtils, Types typeUtil, Element element)
-    {
+    public static boolean checkIsOrExtendsActivity(Elements elementUtils, Types typeUtil, Element element) {
         TypeMirror activity = elementUtils.getTypeElement(Activity.class.getName()).asType();
-        if (typeUtil.isAssignable(element.asType(), activity))
+        if (typeUtil.isAssignable(element.asType(), activity)) {
             return true;
+        }
         return false;
     }
 
-    public static boolean checkIsOrExtendsFragment(Elements elementUtils, Types typeUtil, Element element)
-    {
+    public static boolean checkIsOrExtendsFragment(Elements elementUtils, Types typeUtil, Element element) {
         TypeMirror fragment = elementUtils.getTypeElement(Fragment.class.getName()).asType();
         TypeMirror supportFragment = elementUtils.getTypeElement(android.support.v4.app.Fragment.class.getName()).asType();
-        if (typeUtil.isAssignable(element.asType(), fragment) || typeUtil.isAssignable(element.asType(), supportFragment))
+        if (typeUtil.isAssignable(element.asType(), fragment) || typeUtil.isAssignable(element.asType(), supportFragment)) {
             return true;
+        }
         return false;
     }
 }
