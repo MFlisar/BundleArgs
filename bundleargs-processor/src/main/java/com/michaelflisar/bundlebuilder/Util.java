@@ -15,6 +15,7 @@ import javax.annotation.processing.Messager;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
@@ -27,6 +28,10 @@ import javax.lang.model.util.Types;
 
 public class Util {
     public static final String FIELD_HASH_MAP_NAME = "mFieldMap";
+
+    public static String getBundleBuilderName(Element annotatedElement) {
+        return String.format("%sBundleBuilder", annotatedElement.getSimpleName());
+    }
 
     private static HashSet<String> PRIMITIVE_CLASSES = new HashSet<String>() {
         {
@@ -211,5 +216,12 @@ public class Util {
             return true;
         }
         return false;
+    }
+
+    public static String getPackageName(Element e) {
+        while (!(e instanceof PackageElement)) {
+            e = e.getEnclosingElement();
+        }
+        return ((PackageElement) e).getQualifiedName().toString();
     }
 }

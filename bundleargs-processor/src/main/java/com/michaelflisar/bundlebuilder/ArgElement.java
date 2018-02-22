@@ -154,8 +154,7 @@ public class ArgElement {
                 .beginControlFlow("if (bundle != null && bundle.containsKey($S))", mParamName)
                 .addStatement("return ($T) bundle.get($S)", mType, mParamName)
                 .nextControlFlow("else")
-                //.addStatement("return annotatedClass.$L",  mParamName)
-                .addStatement("return annotatedClass.$L.get($s)", Util.FIELD_HASH_MAP_NAME, mParamName)
+                .addStatement("return annotatedClass.$L",  mParamName)
                 .endControlFlow();
 
         builder.addMethod(getterMethod.build());

@@ -86,7 +86,7 @@ public class Processor extends AbstractProcessor {
 
             try {
                 TypeSpec builderSpec = getBuilderSpec(annotatedElement);
-                JavaFile builderFile = JavaFile.builder(getPackageName(annotatedElement), builderSpec).build();
+                JavaFile builderFile = JavaFile.builder(Util.getPackageName(annotatedElement), builderSpec).build();
                 builderFile.writeTo(filer);
             } catch (Exception e) {
                 messager.printMessage(Diagnostic.Kind.ERROR, e.toString());
@@ -110,7 +110,7 @@ public class Processor extends AbstractProcessor {
         all.addAll(optional);
 
         // 1) create class
-        final String name = String.format("%sBundleBuilder", annotatedElement.getSimpleName());
+        final String name = Util.getBundleBuilderName(annotatedElement);
         TypeSpec.Builder builder = TypeSpec.classBuilder(name)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
@@ -187,7 +187,7 @@ public class Processor extends AbstractProcessor {
         elementsToPrecess.addAll(optional);
 
         String setterPrefix = annotatedElement.getAnnotation(BundleBuilder.class).setterPrefix();
-        ClassName className = ClassName.get(getPackageName(annotatedElement), name);
+        ClassName className = ClassName.get(Util.getPackageName(annotatedElement), name);
         for (ArgElement e : elementsToPrecess) {
             e.addSetter(builder, className, setterPrefix);
         }
@@ -252,7 +252,7 @@ public class Processor extends AbstractProcessor {
 
     private void addCreateFragment(Element annotatedElement, TypeSpec.Builder builder) {
         if (Util.checkIsOrExtendsFragment(elementUtils, typeUtils, annotatedElement)) {
-            ClassName className = ClassName.get(getPackageName(annotatedElement), annotatedElement.getSimpleName().toString());
+            ClassName className = ClassName.get(Util.getPackageName(annotatedElement), annotatedElement.getSimpleName().toString());
             MethodSpec.Builder buildMethod = MethodSpec.methodBuilder("createFragment")
                     .addModifiers(Modifier.PUBLIC)
                     .addStatement("$L fragment = new $L()", annotatedElement.getSimpleName(), annotatedElement.getSimpleName())
@@ -267,7 +267,7 @@ public class Processor extends AbstractProcessor {
 
     private void addCreate(Element annotatedElement, TypeSpec.Builder builder) {
         if (Util.checkForConstructorWithBundle(annotatedElement)) {
-            ClassName className = ClassName.get(getPackageName(annotatedElement), annotatedElement.getSimpleName().toString());
+            ClassName className = ClassName.get(Util.getPackageName(annotatedElement), annotatedElement.getSimpleName().toString());
             MethodSpec.Builder buildMethod = MethodSpec.methodBuilder("create")
                     .addModifiers(Modifier.PUBLIC)
                     .returns(className)
@@ -321,13 +321,6 @@ public class Processor extends AbstractProcessor {
 
     private void logError(Element e, String msg, Object... args) {
         messager.printMessage(Diagnostic.Kind.ERROR, String.format(msg, args), e);
-    }
-
-    private String getPackageName(Element e) {
-        while (!(e instanceof PackageElement)) {
-            e = e.getEnclosingElement();
-        }
-        return ((PackageElement) e).getQualifiedName().toString();
     }
 
     private void getAnnotatedFields(Element annotatedElement, List<ArgElement> required, List<ArgElement> optional) {
