@@ -161,7 +161,12 @@ public class Processor extends AbstractProcessor {
 
     private void createHashMapField(Element annotatedElement, TypeSpec.Builder builder) {
         ParameterizedTypeName subType = ParameterizedTypeName.get(Pair.class, Boolean.class, Object.class);
-        ParameterizedTypeName mainType = ParameterizedTypeName.get(HashMap.class, String.class, Pair.class);
+        //ParameterizedTypeName mainType = ParameterizedTypeName.get(HashMap.class, String.class, Pair.class);
+
+        ParameterizedTypeName mainType = ParameterizedTypeName.get(
+                ClassName.get(HashMap.class),
+                ClassName.get(String.class),
+                subType);
 
         builder.addField(
                 FieldSpec.builder(mainType, Util.FIELD_HASH_MAP_NAME, Modifier.PRIVATE, Modifier.FINAL)

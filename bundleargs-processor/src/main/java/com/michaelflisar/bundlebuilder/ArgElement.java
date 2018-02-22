@@ -103,14 +103,14 @@ public class ArgElement {
         if (bundleFunctionName != null) {
             if (!isOptional()) {
                 buildMethod
-                        .beginControlFlow("if (!$N.containsKey($S) || !(Boolean)$N.get($S).first)", Util.FIELD_HASH_MAP_NAME, mParamName, Util.FIELD_HASH_MAP_NAME, mParamName)
+                        .beginControlFlow("if (!$N.containsKey($S) || !$N.get($S).first)", Util.FIELD_HASH_MAP_NAME, mParamName, Util.FIELD_HASH_MAP_NAME, mParamName)
                         //.beginControlFlow("if (!$N)", mParamName + mParamIsSetPostFix)
                         .addStatement("throw new RuntimeException($S)", String.format("Mandatory field '%s' missing!", mParamName))
                         .endControlFlow();
             }
 
             buildMethod
-                    .beginControlFlow("if ((Boolean)$N.get($S).first)", Util.FIELD_HASH_MAP_NAME, mParamName)
+                    .beginControlFlow("if ($N.get($S).first)", Util.FIELD_HASH_MAP_NAME, mParamName)
                     .addStatement("bundle.put$L($S, ($T)$N.get($S).second)", bundleFunctionName, mParamName, mType, Util.FIELD_HASH_MAP_NAME, mParamName)
                     //.beginControlFlow("if ($N)", mParamName + mParamIsSetPostFix)
                     //.addStatement("bundle.put$L($S, $N)", bundleFunctionName, mParamName, mParamName)
