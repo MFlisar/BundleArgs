@@ -1,7 +1,6 @@
 package com.michaelflisar.bundlebuilder;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Parcelable;
 
@@ -209,11 +208,19 @@ public class Util {
         return false;
     }
 
-    public static boolean checkIsOrExtendsFragment(Elements elementUtils, Types typeUtil, Element element) {
-        TypeMirror fragment = elementUtils.getTypeElement(Fragment.class.getName()).asType();
-        TypeMirror supportFragment = elementUtils.getTypeElement(android.support.v4.app.Fragment.class.getName()).asType();
-        if (typeUtil.isAssignable(element.asType(), fragment) || typeUtil.isAssignable(element.asType(), supportFragment)) {
+    public static boolean checkIsOrExtendsFragment(Elements elementUtils, Types typeUtil, Element element, boolean supportSupportLibrary, boolean supportAndroidX) {
+        TypeMirror fragment = elementUtils.getTypeElement(android.app.Fragment.class.getName()).asType();
+        if (typeUtil.isAssignable(element.asType(), fragment))
             return true;
+        if (supportSupportLibrary) {
+            TypeMirror supportFragment = elementUtils.getTypeElement(android.support.v4.app.Fragment.class.getName()).asType();
+            if (typeUtil.isAssignable(element.asType(), supportFragment))
+                return true;
+        }
+        if (supportAndroidX) {
+//            TypeMirror androidXFragment = elementUtils.getTypeElement(androidx.fragment.app.Fragment.class.getName()).asType();
+//            if (typeUtil.isAssignable(element.asType(), androidXFragment))
+//                return true;
         }
         return false;
     }

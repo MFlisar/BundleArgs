@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Pair;
 
 import com.squareup.javapoet.ClassName;
@@ -30,7 +29,6 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -124,16 +122,19 @@ public class Processor extends AbstractProcessor {
         addSetters(name, annotatedElement, builder, required, optional);
 
         // 5) add buildIntent method to create an intent
+        boolean supportSupportLibrary = annotatedElement.getAnnotation(BundleBuilder.class).supportSupportLibrary();
+        boolean supportAndroidX = annotatedElement.getAnnotation(BundleBuilder.class).supportAndroidX();
         addBuildIntentFunction(annotatedElement, builder, all);
-        addStartActivity(annotatedElement, builder);
-        addCreateFragment(annotatedElement, builder);
+        addStartActivity(annotatedElement, builder, supportSupportLibrary, supportAndroidX);
+//        addCreateFragment(annotatedElement, builder, supportSupportLibrary, supportAndroidX);
         addCreate(annotatedElement, builder);
 
         // 6) add build method to create a bundle
         addBuildBundleFunction(annotatedElement, builder, all);
-
+//
         // 7) add inject method to read all fields into an annotated class
-        addInjectFunction(annotatedElement, builder, all);
+        boolean kotlin = annotatedElement.getAnnotation(BundleBuilder.class).isKotlinClass();
+        addInjectFunction(annotatedElement, builder, all, kotlin);
 
         // 8) add getter functions for each fields
         addGetters(annotatedElement, builder, all);
@@ -214,7 +215,7 @@ public class Processor extends AbstractProcessor {
         builder.addMethod(buildIntentMethod.build());
     }
 
-    private void addStartActivity(Element annotatedElement, TypeSpec.Builder builder) {
+    private void addStartActivity(Element annotatedElement, TypeSpec.Builder builder, boolean supportSupportLibrary, boolean supportAndroidX) {
         if (Util.checkIsOrExtendsActivity(elementUtils, typeUtils, annotatedElement)) {
             MethodSpec.Builder buildMethod = MethodSpec.methodBuilder("startActivity")
                     .addModifiers(Modifier.PUBLIC)
@@ -231,13 +232,25 @@ public class Processor extends AbstractProcessor {
                     .addStatement("activity.startActivityForResult(intent, requestCode)");
             builder.addMethod(buildMethod.build());
 
-            buildMethod = MethodSpec.methodBuilder("startActivityForResult")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(Fragment.class, "fragment")
-                    .addParameter(int.class, "requestCode")
-                    .addStatement("$T intent = $L", Intent.class, "buildIntent(fragment.getContext())")
-                    .addStatement("fragment.startActivityForResult(intent, requestCode)");
-            builder.addMethod(buildMethod.build());
+//            if (annotatedElement.getAnnotation(BundleBuilder.class).supportAndroidX()) {
+//                buildMethod = MethodSpec.methodBuilder("startActivityForResult")
+//                        .addModifiers(Modifier.PUBLIC)
+//                        .addParameter(androidx.fragment.app.Fragment.class, "fragment")
+//                        .addParameter(int.class, "requestCode")
+//                        .addStatement("$T intent = $L", Intent.class, "buildIntent(fragment.getContext())")
+//                        .addStatement("fragment.startActivityForResult(intent, requestCode)");
+//                builder.addMethod(buildMethod.build());
+//            }
+
+            if (supportSupportLibrary) {
+                buildMethod = MethodSpec.methodBuilder("startActivityForResult")
+                        .addModifiers(Modifier.PUBLIC)
+                        .addParameter(android.support.v4.app.Fragment.class, "fragment")
+                        .addParameter(int.class, "requestCode")
+                        .addStatement("$T intent = $L", Intent.class, "buildIntent(fragment.getContext())")
+                        .addStatement("fragment.startActivityForResult(intent, requestCode)");
+                builder.addMethod(buildMethod.build());
+            }
 
             buildMethod = MethodSpec.methodBuilder("startActivityForResult")
                     .addModifiers(Modifier.PUBLIC)
@@ -250,8 +263,8 @@ public class Processor extends AbstractProcessor {
         }
     }
 
-    private void addCreateFragment(Element annotatedElement, TypeSpec.Builder builder) {
-        if (Util.checkIsOrExtendsFragment(elementUtils, typeUtils, annotatedElement)) {
+    private void addCreateFragment(Element annotatedElement, TypeSpec.Builder builder, boolean supportSupportLibrary, boolean supportAndroidX) {
+        if (Util.checkIsOrExtendsFragment(elementUtils, typeUtils, annotatedElement, supportSupportLibrary, supportAndroidX)) {
             ClassName className = ClassName.get(Util.getPackageName(annotatedElement), annotatedElement.getSimpleName().toString());
             MethodSpec.Builder buildMethod = MethodSpec.methodBuilder("createFragment")
                     .addModifiers(Modifier.PUBLIC)
@@ -292,14 +305,14 @@ public class Processor extends AbstractProcessor {
         builder.addMethod(buildMethod.build());
     }
 
-    private void addInjectFunction(Element annotatedElement, TypeSpec.Builder builder, List<ArgElement> all) {
+    private void addInjectFunction(Element annotatedElement, TypeSpec.Builder builder, List<ArgElement> all, boolean kotlin) {
         MethodSpec.Builder injectMethod = MethodSpec.methodBuilder("inject")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(Bundle.class, "args")
                 .addParameter(TypeName.get(annotatedElement.asType()), "annotatedClass");
 
         for (ArgElement e : all) {
-            e.addFieldToInjection(injectMethod);
+            e.addFieldToInjection(kotlin, injectMethod);
         }
 
         builder.addMethod(injectMethod.build());

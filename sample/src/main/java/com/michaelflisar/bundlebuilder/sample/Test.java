@@ -1,7 +1,7 @@
 package com.michaelflisar.bundlebuilder.sample;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.michaelflisar.bundlebuilder.Arg;
 import com.michaelflisar.bundlebuilder.BundleBuilder;

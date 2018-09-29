@@ -1,14 +1,11 @@
 package com.michaelflisar.bundlebuilder.sample.base;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.michaelflisar.bundlebuilder.sample.R;
-import com.michaelflisar.bundlebuilder.sample.detail.DetailActivityBundleBuilder;
-
-import java.util.List;
 
 /**
  * Created by flisar on 14.02.2017.

@@ -120,14 +120,20 @@ public class ArgElement {
         }
     }
 
-    public void addFieldToInjection(MethodSpec.Builder injectMethod) {
+    public void addFieldToInjection(boolean kotlin, MethodSpec.Builder injectMethod) {
         if (!mOptional) {
             Util.addContainsCheckWithException(injectMethod, this, "args");
         }
+        injectMethod.beginControlFlow("if (args != null && args.containsKey($S))", mParamName);
+        if (kotlin) {
+            String setter = mElement.getSimpleName().toString();
+            setter = "set" + setter.substring(0, 1).toUpperCase() + setter.substring(1);
+            injectMethod.addStatement("annotatedClass.$N(($T) args.get($S))", setter, mType, mParamName);
+        } else {
+            injectMethod.addStatement("annotatedClass.$N = ($T) args.get($S)", mElement.getSimpleName().toString(), mType, mParamName);
+        }
 
-        injectMethod.beginControlFlow("if (args != null && args.containsKey($S))", mParamName)
-                .addStatement("annotatedClass.$N = ($T) args.get($S)", mElement.getSimpleName().toString(), mType, mParamName)
-                .endControlFlow();
+        injectMethod.endControlFlow();
     }
 
     public void addSetter(TypeSpec.Builder builder, ClassName className, String prefix) {

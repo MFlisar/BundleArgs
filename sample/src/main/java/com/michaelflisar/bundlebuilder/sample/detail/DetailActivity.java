@@ -1,11 +1,10 @@
 package com.michaelflisar.bundlebuilder.sample.detail;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.michaelflisar.bundlebuilder.Arg;
 import com.michaelflisar.bundlebuilder.BundleBuilder;
-import com.michaelflisar.bundlebuilder.sample.R;
 import com.michaelflisar.bundlebuilder.sample.base.BaseDetailActivity;
 
 @BundleBuilder(useConstructorForMandatoryArgs = false)

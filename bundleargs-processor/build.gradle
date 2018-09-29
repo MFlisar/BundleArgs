@@ -13,9 +13,13 @@ sourceSets {
 }
 
 dependencies {
-    compile 'com.squareup:javapoet:1.10.0'
+    compile 'com.squareup:javapoet:1.11.0'
     compile 'com.google.android:android:4.1.1.4'
     compile 'com.google.android:support-v4:r7'
+
+//    implementation 'androidx.fragment:fragment:1.0.0'
+//    compile "androidx.legacy:legacy-support-core-ui:1.0.0"
+//    compile "androidx.appcompat:appcompat:1.0.0"
 
 //    compile project(':bundleargs-annotation')
 }
