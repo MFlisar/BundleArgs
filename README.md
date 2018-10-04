@@ -61,7 +61,18 @@ public class MyActivity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		MyActivityBundleBuilder.inject(getIntent().getExtras(), this);
+		
+		// Optionally: if desired, a persist method is generated that must be called in onSaveInstanceState and following will either read the arguments OR the last values from the savedInstanceState
+		// MyActivityBundleBuilder.inject(savedInstanceState != null ? savedInstanceState : getIntent().getExtras(), this);
 	}
+	
+	@Override
+    public void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+        // Optionally: this will save all fields into the state, so that you can inject current values when activity is restored
+        // MyActivityBundleBuilder.persist(outState, this);
+    }
 }
 ```
 
@@ -126,6 +137,10 @@ You can define some setup variables like following (each one is optional):
 * `String setterPrefix()`:  default `""`... if not empty, all setters for the builder will be prefixed with this String. I.e. the field `customField` will be settable via a function `builder.withCustomField(...)` if the `setterPrefix == "with"`...
 * `boolean generateGetters()`: default: `false`... defines, if the builder offers getter functions for each field to retrieve fields from a bundle directly
 * `boolean generateIntentBuilder()`: default: `false`... defines, if the `buildIntent` method is generated for non activity classes as well
+* `boolean generatePersist()`: default: `false`... define if support activities / fragments are supported or not
+* `boolean supportAndroidX()`: default: `false`... define if androiX activities / fragments are supported or not
+* `boolean isKotlinClass()`: default: `false`... define if the annotated class is a kotlin class or not
+* `boolean generatePersist()`: default: `false`... define if you want to generate a simply persist method to write all current values to the provided bundle
 
 **`@Arg`**
 
