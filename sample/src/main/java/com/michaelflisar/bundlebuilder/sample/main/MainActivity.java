@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-
                 DetailActivityBundleBuilder builder = new DetailActivityBundleBuilder()
                         .stringArg("String Test Argument")
                         .integerArg(100)

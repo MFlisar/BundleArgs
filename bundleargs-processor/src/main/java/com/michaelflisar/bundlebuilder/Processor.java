@@ -139,6 +139,12 @@ public class Processor extends AbstractProcessor {
         // 8) add getter functions for each fields
         addGetters(annotatedElement, builder, all);
 
+        // 9) generate persist and restore function
+        boolean generateSaveRestore = annotatedElement.getAnnotation(BundleBuilder.class).generatePersist();
+        if (generateSaveRestore) {
+            addPersist(annotatedElement, builder, all, kotlin);
+        }
+
         return builder.build();
     }
 
@@ -326,6 +332,34 @@ public class Processor extends AbstractProcessor {
         for (ArgElement e : all) {
             e.addFieldGetter(annotatedElement, builder);
         }
+    }
+
+    private void addPersist(Element annotatedElement, TypeSpec.Builder builder, List<ArgElement> all, boolean kotlin) {
+        MethodSpec.Builder persistMethod = MethodSpec.methodBuilder("persist")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(Bundle.class, "outState")
+                .addParameter(TypeName.get(annotatedElement.asType()), "annotatedClass");
+
+        persistMethod.beginControlFlow("if (outState != null)");
+        for (ArgElement e : all) {
+            e.addFieldToPersist(elementUtils, typeUtils, messager, kotlin, persistMethod);
+        }
+        persistMethod.endControlFlow();
+
+        builder.addMethod(persistMethod.build());
+    }
+
+    private void addRestore(Element annotatedElement, TypeSpec.Builder builder, List<ArgElement> all, boolean kotlin) {
+        MethodSpec.Builder restoreMethod = MethodSpec.methodBuilder("restore")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(Bundle.class, "savedInstanceState")
+                .addParameter(TypeName.get(annotatedElement.asType()), "annotatedClass");
+
+//        for (ArgElement e : all) {
+//            e.addFieldToInjection(injectMethod);
+//        }
+
+        builder.addMethod(restoreMethod.build());
     }
 
     // --------------------

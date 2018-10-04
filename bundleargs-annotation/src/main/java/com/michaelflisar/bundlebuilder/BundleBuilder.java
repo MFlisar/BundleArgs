@@ -16,4 +16,6 @@ public @interface BundleBuilder
     boolean supportSupportLibrary() default false;
     boolean supportAndroidX() default false;
     boolean isKotlinClass() default false;
+
+    boolean generatePersist() default false;
 }
