@@ -28,6 +28,16 @@ import javax.lang.model.util.Types;
 public class Util {
     public static final String FIELD_HASH_MAP_NAME = "mFieldMap";
 
+    private static TypeElement TYPE_ELEMENT_ANDROID_X = null;
+
+    public static final TypeElement getTypeElementAndroidX(Elements elementUtils) {
+        if (TYPE_ELEMENT_ANDROID_X == null) {
+            TYPE_ELEMENT_ANDROID_X = elementUtils.getTypeElement("androidx.fragment.app.Fragment");
+        }
+        return TYPE_ELEMENT_ANDROID_X;
+    }
+
+
     public static String getBundleBuilderName(Element annotatedElement) {
         return String.format("%sBundleBuilder", annotatedElement.getSimpleName());
     }
@@ -210,17 +220,20 @@ public class Util {
 
     public static boolean checkIsOrExtendsFragment(Elements elementUtils, Types typeUtil, Element element, boolean supportSupportLibrary, boolean supportAndroidX) {
         TypeMirror fragment = elementUtils.getTypeElement(android.app.Fragment.class.getName()).asType();
-        if (typeUtil.isAssignable(element.asType(), fragment))
+        if (typeUtil.isAssignable(element.asType(), fragment)) {
             return true;
+        }
         if (supportSupportLibrary) {
             TypeMirror supportFragment = elementUtils.getTypeElement(android.support.v4.app.Fragment.class.getName()).asType();
-            if (typeUtil.isAssignable(element.asType(), supportFragment))
+            if (typeUtil.isAssignable(element.asType(), supportFragment)) {
                 return true;
+            }
         }
         if (supportAndroidX) {
-//            TypeMirror androidXFragment = elementUtils.getTypeElement(androidx.fragment.app.Fragment.class.getName()).asType();
-//            if (typeUtil.isAssignable(element.asType(), androidXFragment))
-//                return true;
+            TypeMirror androidXFragment = getTypeElementAndroidX(elementUtils).asType();
+            if (typeUtil.isAssignable(element.asType(), androidXFragment)) {
+                return true;
+            }
         }
         return false;
     }

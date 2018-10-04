@@ -238,15 +238,15 @@ public class Processor extends AbstractProcessor {
                     .addStatement("activity.startActivityForResult(intent, requestCode)");
             builder.addMethod(buildMethod.build());
 
-//            if (annotatedElement.getAnnotation(BundleBuilder.class).supportAndroidX()) {
-//                buildMethod = MethodSpec.methodBuilder("startActivityForResult")
-//                        .addModifiers(Modifier.PUBLIC)
-//                        .addParameter(androidx.fragment.app.Fragment.class, "fragment")
-//                        .addParameter(int.class, "requestCode")
-//                        .addStatement("$T intent = $L", Intent.class, "buildIntent(fragment.getContext())")
-//                        .addStatement("fragment.startActivityForResult(intent, requestCode)");
-//                builder.addMethod(buildMethod.build());
-//            }
+            if (annotatedElement.getAnnotation(BundleBuilder.class).supportAndroidX()) {
+                buildMethod = MethodSpec.methodBuilder("startActivityForResult")
+                        .addModifiers(Modifier.PUBLIC)
+                        .addParameter(ClassName.get(Util.getTypeElementAndroidX(elementUtils)), "fragment")
+                        .addParameter(int.class, "requestCode")
+                        .addStatement("$T intent = $L", Intent.class, "buildIntent(fragment.getContext())")
+                        .addStatement("fragment.startActivityForResult(intent, requestCode)");
+                builder.addMethod(buildMethod.build());
+            }
 
             if (supportSupportLibrary) {
                 buildMethod = MethodSpec.methodBuilder("startActivityForResult")
