@@ -141,8 +141,6 @@ You can define some setup variables like following (each one is optional):
 * `String setterPrefix()`:  default `""`... if not empty, all setters for the builder will be prefixed with this String. I.e. the field `customField` will be settable via a function `builder.withCustomField(...)` if the `setterPrefix == "with"`...
 * `boolean generateGetters()`: default: `false`... defines, if the builder offers getter functions for each field to retrieve fields from a bundle directly
 * `boolean generateIntentBuilder()`: default: `false`... defines, if the `buildIntent` method is generated for non activity classes as well
-* `boolean generatePersist()`: default: `false`... define if support activities / fragments are supported or not
-* `boolean supportAndroidX()`: default: `false`... define if androidX activities / fragments are supported or not
 * `boolean isKotlinClass()`: default: `false`... define if the annotated class is a kotlin class or not
 * `boolean generatePersist()`: default: `false`... define if you want to generate a simply persist method to write all current values to the provided bundle
 

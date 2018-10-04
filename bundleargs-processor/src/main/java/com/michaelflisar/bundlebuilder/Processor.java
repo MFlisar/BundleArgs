@@ -121,12 +121,13 @@ public class Processor extends AbstractProcessor {
         // 4) add methods for all optional fields
         addSetters(name, annotatedElement, builder, required, optional);
 
+        TypeMirror typeMirrorSupportLibrary = Util.getTypeMirror(elementUtils, Util.ANDROID_SUPPORT_FRAGMENT_PACKAGE_NAME);
+        TypeMirror typeMirrorAndroidX = Util.getTypeMirror(elementUtils, Util.ANDROID_X_FRAGMENT_PACKAGE_NAME);
+
         // 5) add buildIntent method to create an intent
-        boolean supportSupportLibrary = annotatedElement.getAnnotation(BundleBuilder.class).supportSupportLibrary();
-        boolean supportAndroidX = annotatedElement.getAnnotation(BundleBuilder.class).supportAndroidX();
         addBuildIntentFunction(annotatedElement, builder, all);
-        addStartActivity(annotatedElement, builder, supportSupportLibrary, supportAndroidX);
-//        addCreateFragment(annotatedElement, builder, supportSupportLibrary, supportAndroidX);
+        addStartActivity(annotatedElement, builder, typeMirrorSupportLibrary, typeMirrorAndroidX);
+        addCreateFragment(annotatedElement, builder, typeMirrorSupportLibrary, typeMirrorAndroidX);
         addCreate(annotatedElement, builder);
 
         // 6) add build method to create a bundle
@@ -221,7 +222,7 @@ public class Processor extends AbstractProcessor {
         builder.addMethod(buildIntentMethod.build());
     }
 
-    private void addStartActivity(Element annotatedElement, TypeSpec.Builder builder, boolean supportSupportLibrary, boolean supportAndroidX) {
+    private void addStartActivity(Element annotatedElement, TypeSpec.Builder builder, TypeMirror typeMirrorSupportLibrary, TypeMirror typeMirrorAndroidX) {
         if (Util.checkIsOrExtendsActivity(elementUtils, typeUtils, annotatedElement)) {
             MethodSpec.Builder buildMethod = MethodSpec.methodBuilder("startActivity")
                     .addModifiers(Modifier.PUBLIC)
@@ -238,20 +239,20 @@ public class Processor extends AbstractProcessor {
                     .addStatement("activity.startActivityForResult(intent, requestCode)");
             builder.addMethod(buildMethod.build());
 
-            if (annotatedElement.getAnnotation(BundleBuilder.class).supportAndroidX()) {
+            if (typeMirrorAndroidX != null) {
                 buildMethod = MethodSpec.methodBuilder("startActivityForResult")
                         .addModifiers(Modifier.PUBLIC)
-                        .addParameter(ClassName.get(Util.getTypeElementAndroidX(elementUtils)), "fragment")
+                        .addParameter(ClassName.get(typeMirrorAndroidX), "fragment")
                         .addParameter(int.class, "requestCode")
                         .addStatement("$T intent = $L", Intent.class, "buildIntent(fragment.getContext())")
                         .addStatement("fragment.startActivityForResult(intent, requestCode)");
                 builder.addMethod(buildMethod.build());
             }
 
-            if (supportSupportLibrary) {
+            if (typeMirrorSupportLibrary != null) {
                 buildMethod = MethodSpec.methodBuilder("startActivityForResult")
                         .addModifiers(Modifier.PUBLIC)
-                        .addParameter(android.support.v4.app.Fragment.class, "fragment")
+                        .addParameter(ClassName.get(typeMirrorSupportLibrary), "fragment")
                         .addParameter(int.class, "requestCode")
                         .addStatement("$T intent = $L", Intent.class, "buildIntent(fragment.getContext())")
                         .addStatement("fragment.startActivityForResult(intent, requestCode)");
@@ -269,8 +270,8 @@ public class Processor extends AbstractProcessor {
         }
     }
 
-    private void addCreateFragment(Element annotatedElement, TypeSpec.Builder builder, boolean supportSupportLibrary, boolean supportAndroidX) {
-        if (Util.checkIsOrExtendsFragment(elementUtils, typeUtils, annotatedElement, supportSupportLibrary, supportAndroidX)) {
+    private void addCreateFragment(Element annotatedElement, TypeSpec.Builder builder, TypeMirror typeMirrorSupportLibrary, TypeMirror typeMirrorAndroidX) {
+        if (Util.checkIsOrExtendsFragment(elementUtils, typeUtils, annotatedElement, typeMirrorSupportLibrary, typeMirrorAndroidX)) {
             ClassName className = ClassName.get(Util.getPackageName(annotatedElement), annotatedElement.getSimpleName().toString());
             MethodSpec.Builder buildMethod = MethodSpec.methodBuilder("createFragment")
                     .addModifiers(Modifier.PUBLIC)

@@ -12,10 +12,6 @@ public @interface BundleBuilder
     String setterPrefix() default "";
     boolean generateIntentBuilder() default false;
     boolean generateGetters() default false;
-
-    boolean supportSupportLibrary() default false;
-    boolean supportAndroidX() default false;
     boolean isKotlinClass() default false;
-
     boolean generatePersist() default false;
 }

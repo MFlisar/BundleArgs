@@ -28,15 +28,8 @@ import javax.lang.model.util.Types;
 public class Util {
     public static final String FIELD_HASH_MAP_NAME = "mFieldMap";
 
-    private static TypeElement TYPE_ELEMENT_ANDROID_X = null;
-
-    public static final TypeElement getTypeElementAndroidX(Elements elementUtils) {
-        if (TYPE_ELEMENT_ANDROID_X == null) {
-            TYPE_ELEMENT_ANDROID_X = elementUtils.getTypeElement("androidx.fragment.app.Fragment");
-        }
-        return TYPE_ELEMENT_ANDROID_X;
-    }
-
+    public static final String ANDROID_X_FRAGMENT_PACKAGE_NAME = "androidx.fragment.app.Fragment";
+    public static final String ANDROID_SUPPORT_FRAGMENT_PACKAGE_NAME = "android.support.v4.app.Fragment";
 
     public static String getBundleBuilderName(Element annotatedElement) {
         return String.format("%sBundleBuilder", annotatedElement.getSimpleName());
@@ -119,6 +112,11 @@ public class Util {
             functionName = getSimpleBundleFunctionName(elementUtils, typeUtils, typeMirror);
         }
         return functionName;
+    }
+
+    public static TypeMirror getTypeMirror(Elements elementUtils, String packageName) {
+        TypeElement typeElement = elementUtils.getTypeElement(packageName);
+        return typeElement != null ? typeElement.asType() : null;
     }
 
     public static boolean isPrimitiveType(TypeMirror typeMirror) {
@@ -218,22 +216,16 @@ public class Util {
         return false;
     }
 
-    public static boolean checkIsOrExtendsFragment(Elements elementUtils, Types typeUtil, Element element, boolean supportSupportLibrary, boolean supportAndroidX) {
+    public static boolean checkIsOrExtendsFragment(Elements elementUtils, Types typeUtil, Element element, TypeMirror typeMirrorSupportLibrary, TypeMirror typeMirrorAndroidX) {
         TypeMirror fragment = elementUtils.getTypeElement(android.app.Fragment.class.getName()).asType();
         if (typeUtil.isAssignable(element.asType(), fragment)) {
             return true;
         }
-        if (supportSupportLibrary) {
-            TypeMirror supportFragment = elementUtils.getTypeElement(android.support.v4.app.Fragment.class.getName()).asType();
-            if (typeUtil.isAssignable(element.asType(), supportFragment)) {
-                return true;
-            }
+        if (typeMirrorSupportLibrary != null && typeUtil.isAssignable(element.asType(), typeMirrorSupportLibrary)) {
+            return true;
         }
-        if (supportAndroidX) {
-            TypeMirror androidXFragment = getTypeElementAndroidX(elementUtils).asType();
-            if (typeUtil.isAssignable(element.asType(), androidXFragment)) {
-                return true;
-            }
+        if (typeMirrorAndroidX != null && typeUtil.isAssignable(element.asType(), typeMirrorAndroidX)) {
+            return true;
         }
         return false;
     }
