@@ -6,6 +6,7 @@ Let your IDE create your bundles/intents for you. This library is:
 * fast
 * **very small** - just the annotation interfaces are added to your akp (4 methods, 6 fields)
 * **supports any class**:`Activities`, `Fragments` and any other class => use one processor for all your needs
+* **support save/restore** to save changes of the arguments in an `Activities` `onSaveInstanceState` function and restore them again from the `savedInstanceState` if desired
 * creates nice helper functions if appropriate
  
 ### How to add it to your project - Gradle (via [JitPack.io](https://jitpack.io/))
