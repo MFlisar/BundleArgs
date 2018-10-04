@@ -51,7 +51,9 @@ public class Test
 And this is how you define it in an activity:
 
 ```groovy
-@BundleBuilder
+@BundleBuilder(
+    generatePersist = true /* if desired, generates a persist method to save current state into a bundle */
+)
 public class MyActivity extends Activity
 {
 	@Arg
@@ -65,7 +67,7 @@ public class MyActivity extends Activity
 		
 		// Optionally: if desired, a persist method is generated that must be called in onSaveInstanceState
 		// if this is enabled, following will either read the arguments OR the last values from the savedInstanceState
-		// MyActivityBundleBuilder.inject(savedInstanceState != null ? savedInstanceState : getIntent().getExtras(), this);
+		MyActivityBundleBuilder.inject(savedInstanceState != null ? savedInstanceState : getIntent().getExtras(), this);
 	}
 	
 	@Override
@@ -73,7 +75,7 @@ public class MyActivity extends Activity
     {
         super.onSaveInstanceState(outState);
         // Optionally: this will save all fields into the state, so that you can inject current values when activity is restored
-        // MyActivityBundleBuilder.persist(outState, this);
+        MyActivityBundleBuilder.persist(outState, this);
     }
 }
 ```

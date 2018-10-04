@@ -141,7 +141,7 @@ public class ArgElement {
         if (kotlin) {
             String getter = mElement.getSimpleName().toString();
             getter = "get" + getter.substring(0, 1).toUpperCase() + getter.substring(1);
-            persistMethod.addStatement("outState.put$L($S, $S)", bundleFunction, mParamName, getter);
+            persistMethod.addStatement("outState.put$L($S, $N())", bundleFunction, mParamName, getter);
         } else {
             persistMethod.addStatement("outState.put$L($S, annotatedClass.$N)", bundleFunction, mParamName, mElement.getSimpleName().toString());
         }

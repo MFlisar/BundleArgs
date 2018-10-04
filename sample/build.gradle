@@ -28,9 +28,9 @@ dependencies {
     compile "androidx.legacy:legacy-support-core-ui:1.0.0"
     compile "androidx.appcompat:appcompat:1.0.0"
 
-    annotationProcessor  project(':bundleargs-processor')
+    annotationProcessor project(':bundleargs-processor')
     compile project(':bundleargs-annotation')
 
-//    compile 'com.github.MFlisar:BundleArgs:-SNAPSHOT'
-//    apt 'com.github.MFlisar:BundleArgs:-SNAPSHOT'
+//    annotationProcessor 'com.github.MFlisar.BundleArgs:bundleargs-processor:-SNAPSHOT'
+//    compile 'com.github.MFlisar.BundleArgs:bundleargs-annotation:-SNAPSHOT'
 }
