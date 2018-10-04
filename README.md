@@ -12,13 +12,13 @@ Let your IDE create your bundles/intents for you. This library is:
 ### How to add it to your project - Gradle (via [JitPack.io](https://jitpack.io/))
 
 1) add jitpack to your project's `build.gradle`:
-```groovy
+```
 repositories {
     maven { url "https://jitpack.io" }
 }
 ```
 2) add the compile statement to your module's `build.gradle` and apply the apt plugin:
-```groovy
+```
 dependencies {
     compile 'com.github.MFlisar.BundleArgs:bundleargs-annotation:1.4'
     annotationProcessor 'com.github.MFlisar.BundleArgs:bundleargs-processor:1.4'
@@ -29,7 +29,7 @@ dependencies {
 
 Here's a simple example that demonstrates the use in ANY class that needs a `Bundle` argument:
 
-```groovy
+```
 @BundleBuilder
 public class Test
 {
@@ -50,7 +50,7 @@ public class Test
 
 And this is how you define it in an activity:
 
-```groovy
+```
 @BundleBuilder(
     generatePersist = true /* if desired, generates a persist method to save current state into a bundle */
 )
@@ -84,7 +84,7 @@ public class MyActivity extends Activity
 
 1) If you have defined the default costructor with a bundle as args in it, you can directly create a class like this:
 
-```groovy
+```
 Test test = new TestBundleBuilder()
 	.id(1L)
 	.value("Test")
@@ -94,7 +94,7 @@ Test test = new TestBundleBuilder()
 
 2) You can always just create a `Bundle` with the builder like following:
 
-```groovy
+```
 Bundle bundle = new TestBundleBuilder()
 	.id(1L)
 	.value("Test")
@@ -104,7 +104,7 @@ Bundle bundle = new TestBundleBuilder()
 
 3) You can always just create an `Intent` with the builder like following (if the annotated class is an `Activity` or if the boolean flag `alwaysAddIntentBuilder` of the `BundleBuilder` is set to true:
 
-```groovy
+```
 Intent intent = new TestBundleBuilder()
 	.id(1L)
 	.value("Test")
@@ -114,16 +114,23 @@ Intent intent = new TestBundleBuilder()
 
 4) If the annotated class extends `Activity`, following method will be added to start the activity directly;
 
-```groovy
+```
 new MyActivityBundleBuilder()
 	.stringArg("Test")
 	.startActivity(context);
 ```
 
-5) if the enable `useConstructorForMandatoryArgs` in the `@BundleBuilder` annotation, the generated builder will force you to set mandatory fields via the constructor like following:
+5) If the annotated class extends `Fragment` (support, android x or default), following method will be added to create the fragment direclty with arguments already set:
 
+```
+MyFragment fragment = new MyFragmentBundleBuilder()
+	.stringArg("Test")
+	.createFragment();
+```
 
-```groovy
+6) if the enable `useConstructorForMandatoryArgs` in the `@BundleBuilder` annotation, the generated builder will force you to set mandatory fields via the constructor like following:
+
+```
 Bundle b = new TestBundleBuilder(1L, "Test") // you MUST supply mandatory fields
 	.optionalValue("optionalValue") // optional fields can be set via builder functions
 	.build();
