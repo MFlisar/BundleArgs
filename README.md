@@ -62,7 +62,8 @@ public class MyActivity extends Activity
 		super.onCreate(savedInstanceState);
 		MyActivityBundleBuilder.inject(getIntent().getExtras(), this);
 		
-		// Optionally: if desired, a persist method is generated that must be called in onSaveInstanceState and following will either read the arguments OR the last values from the savedInstanceState
+		// Optionally: if desired, a persist method is generated that must be called in onSaveInstanceState
+		// if this is enabled, following will either read the arguments OR the last values from the savedInstanceState
 		// MyActivityBundleBuilder.inject(savedInstanceState != null ? savedInstanceState : getIntent().getExtras(), this);
 	}
 	
