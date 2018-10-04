@@ -64,19 +64,19 @@ public class MyActivity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		MyActivityBundleBuilder.inject(getIntent().getExtras(), this);
-		
-		// Optionally: if desired, a persist method is generated that must be called in onSaveInstanceState
+
+		// ALTERNATIVELY: if desired, a persist method is generated that must be called in onSaveInstanceState
 		// if this is enabled, following will either read the arguments OR the last values from the savedInstanceState
 		MyActivityBundleBuilder.inject(savedInstanceState != null ? savedInstanceState : getIntent().getExtras(), this);
 	}
 	
 	@Override
-    public void onSaveInstanceState(Bundle outState)
-    {
-        super.onSaveInstanceState(outState);
-        // Optionally: this will save all fields into the state, so that you can inject current values when activity is restored
-        MyActivityBundleBuilder.persist(outState, this);
-    }
+	public void onSaveInstanceState(Bundle outState)
+	{
+		super.onSaveInstanceState(outState);
+		// Optionally: this will save all fields into the state, so that you can inject current values when activity is restored
+		MyActivityBundleBuilder.persist(outState, this);
+	}
 }
 ```
 
