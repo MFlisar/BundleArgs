@@ -247,10 +247,8 @@ public class Processor extends AbstractProcessor {
                         .addStatement("$T intent = $L", Intent.class, "buildIntent(fragment.getContext())")
                         .addStatement("fragment.startActivityForResult(intent, requestCode)");
                 builder.addMethod(buildMethod.build());
-            }
-
-            if (typeMirrorSupportLibrary != null) {
-                buildMethod = MethodSpec.methodBuilder("startSupportActivityForResult")
+            }else if (typeMirrorSupportLibrary != null) {
+                buildMethod = MethodSpec.methodBuilder("startActivityForResult")
                         .addModifiers(Modifier.PUBLIC)
                         .addParameter(ClassName.get(typeMirrorSupportLibrary), "fragment")
                         .addParameter(int.class, "requestCode")
