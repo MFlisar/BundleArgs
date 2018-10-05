@@ -20,8 +20,8 @@ repositories {
 2) add the compile statement to your module's `build.gradle` and apply the apt plugin:
 ```
 dependencies {
-    compile 'com.github.MFlisar.BundleArgs:bundleargs-annotation:1.5'
-    annotationProcessor 'com.github.MFlisar.BundleArgs:bundleargs-processor:1.5'
+    compile 'com.github.MFlisar.BundleArgs:bundleargs-annotation:1.6'
+    annotationProcessor 'com.github.MFlisar.BundleArgs:bundleargs-processor:1.6'
 }
 ```
 
