@@ -250,7 +250,7 @@ public class Processor extends AbstractProcessor {
             }
 
             if (typeMirrorSupportLibrary != null) {
-                buildMethod = MethodSpec.methodBuilder("startActivityForResult")
+                buildMethod = MethodSpec.methodBuilder("startSupportActivityForResult")
                         .addModifiers(Modifier.PUBLIC)
                         .addParameter(ClassName.get(typeMirrorSupportLibrary), "fragment")
                         .addParameter(int.class, "requestCode")
